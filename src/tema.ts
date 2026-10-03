@@ -8,6 +8,7 @@ export const cores = {
   texto: '#FFFFFF',
   textoSecundario: '#B5B5B5',
   borda: '#3A3A3A',
+  erro: '#FF6B6B',
 };
 
 export const espacamento = {

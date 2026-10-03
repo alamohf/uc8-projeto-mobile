@@ -10,10 +10,21 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
 
+  const [erro, setErro] = useState('');
+
   function enviar() {
-    aoCriar(titulo, descricao);
+    const tituloLimpo = titulo.trim();
+    const descricaoLimpa = descricao.trim();
+
+    if (tituloLimpo === '' || descricaoLimpa === '') {
+      setErro('Preencha título e descrição.');
+      return;
+    }
+
+    aoCriar(tituloLimpo, descricaoLimpa);
     setTitulo('');
     setDescricao('');
+    setErro('');
   }
 
   return (
@@ -32,6 +43,7 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
         placeholder="Descrição"
         placeholderTextColor={cores.textoSecundario}
       />
+      {erro !== '' ? <Text style={styles.erro}>{erro}</Text> : null}
       <Pressable style={styles.botao} onPress={enviar}>
         <Text style={styles.textoBotao}>Adicionar</Text>
       </Pressable>
@@ -55,6 +67,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingHorizontal: 12,
     paddingVertical: 10,
+    marginBottom: espacamento.pequeno,
+  },
+  erro: {
+    color: cores.erro,
+    fontSize: 13,
     marginBottom: espacamento.pequeno,
   },
   botao: {
