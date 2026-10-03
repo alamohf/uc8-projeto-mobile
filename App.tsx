@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import CartaoCard from './src/componentes/CartaoCard';
 import FormularioCard from './src/componentes/FormularioCard';
 import { buscarCards } from './src/servicos/cardsServico';
 import { Card } from './src/types/entidades';
+import { COLUNA_FAZER } from './src/colunas';
 import { cores, espacamento } from './src/tema';
 
 export default function App() {
@@ -24,7 +26,7 @@ export default function App() {
     const proximaPosicao = Math.max(0, ...cards.map((c) => c.posicao)) + 1;
     const novo: Card = {
       id: proximoId,
-      colunaId: 1,
+      colunaId: COLUNA_FAZER,
       titulo,
       descricao,
       posicao: proximaPosicao,
@@ -33,35 +35,44 @@ export default function App() {
     setCards([...cards, novo]);
   }
 
+  function mudarColuna(id: number, colunaId: number) {
+    setCards((atuais) => atuais.map((c) => (c.id === id ? { ...c, colunaId } : c)));
+  }
+
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.tela}>
-        <StatusBar style="light" />
-        <View style={styles.cabecalho}>
-          <Text style={styles.tituloCabecalho}>Kanban</Text>
-        </View>
-        {carregando ? (
-          <View style={styles.carregando}>
-            <ActivityIndicator size="large" color={cores.destaque} />
-            <Text style={styles.avisoCarregando}>Carregando cards...</Text>
+    <GestureHandlerRootView style={styles.raiz}>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.tela}>
+          <StatusBar style="light" />
+          <View style={styles.cabecalho}>
+            <Text style={styles.tituloCabecalho}>Kanban</Text>
           </View>
-        ) : (
-          <FlatList
-            data={cards}
-            keyExtractor={(card) => String(card.id)}
-            renderItem={({ item }) => <CartaoCard card={item} />}
-            ListHeaderComponent={<FormularioCard aoCriar={adicionarCard} />}
-            ListEmptyComponent={<Text style={styles.vazio}>Nenhum card ainda.</Text>}
-            contentContainerStyle={styles.conteudo}
-            keyboardShouldPersistTaps="handled"
-          />
-        )}
-      </SafeAreaView>
-    </SafeAreaProvider>
+          {carregando ? (
+            <View style={styles.carregando}>
+              <ActivityIndicator size="large" color={cores.destaque} />
+              <Text style={styles.avisoCarregando}>Carregando cards...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={cards}
+              keyExtractor={(card) => String(card.id)}
+              renderItem={({ item }) => <CartaoCard card={item} aoMudarColuna={mudarColuna} />}
+              ListHeaderComponent={<FormularioCard aoCriar={adicionarCard} />}
+              ListEmptyComponent={<Text style={styles.vazio}>Nenhum card ainda.</Text>}
+              contentContainerStyle={styles.conteudo}
+              keyboardShouldPersistTaps="handled"
+            />
+          )}
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  raiz: {
+    flex: 1,
+  },
   tela: {
     flex: 1,
     backgroundColor: cores.fundo,
