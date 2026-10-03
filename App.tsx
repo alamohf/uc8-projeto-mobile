@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import CartaoCard from './src/componentes/CartaoCard';
 import FormularioCard from './src/componentes/FormularioCard';
+import { buscarCards } from './src/servicos/cardsServico';
 import { Card } from './src/types/entidades';
 import { cores, espacamento } from './src/tema';
 
-const cardsIniciais: Card[] = [
-  { id: 1, colunaId: 1, titulo: 'Desenhar tela do quadro', descricao: 'Colunas e cards lado a lado', posicao: 1, criadoEm: new Date() },
-  { id: 2, colunaId: 2, titulo: 'Tipar entidades', posicao: 1, criadoEm: new Date() },
-  { id: 3, colunaId: 3, titulo: 'Escrever README', descricao: 'Recorte, telas e o que fica de fora', posicao: 1, criadoEm: new Date() },
-];
-
 export default function App() {
-  const [cards, setCards] = useState<Card[]>(cardsIniciais);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    buscarCards().then((dados) => {
+      setCards(dados);
+      setCarregando(false);
+    });
+  }, []);
 
   function adicionarCard(titulo: string, descricao: string) {
     const proximoId = Math.max(0, ...cards.map((c) => c.id)) + 1;
@@ -34,15 +37,22 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.tela}>
         <StatusBar style="light" />
-        <FlatList
-          data={cards}
-          keyExtractor={(card) => String(card.id)}
-          renderItem={({ item }) => <CartaoCard card={item} />}
-          ListHeaderComponent={<FormularioCard aoCriar={adicionarCard} />}
-          ListEmptyComponent={<Text style={styles.vazio}>Nenhum card ainda.</Text>}
-          contentContainerStyle={styles.conteudo}
-          keyboardShouldPersistTaps="handled"
-        />
+        {carregando ? (
+          <View style={styles.carregando}>
+            <ActivityIndicator size="large" color={cores.destaque} />
+            <Text style={styles.avisoCarregando}>Carregando cards...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={cards}
+            keyExtractor={(card) => String(card.id)}
+            renderItem={({ item }) => <CartaoCard card={item} />}
+            ListHeaderComponent={<FormularioCard aoCriar={adicionarCard} />}
+            ListEmptyComponent={<Text style={styles.vazio}>Nenhum card ainda.</Text>}
+            contentContainerStyle={styles.conteudo}
+            keyboardShouldPersistTaps="handled"
+          />
+        )}
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -55,6 +65,16 @@ const styles = StyleSheet.create({
   },
   conteudo: {
     padding: espacamento.medio,
+  },
+  carregando: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avisoCarregando: {
+    color: cores.textoSecundario,
+    fontSize: 14,
+    marginTop: espacamento.medio,
   },
   vazio: {
     color: cores.textoSecundario,
