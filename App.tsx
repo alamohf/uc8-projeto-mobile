@@ -37,6 +37,9 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.tela}>
         <StatusBar style="light" />
+        <View style={styles.cabecalho}>
+          <Text style={styles.tituloCabecalho}>Kanban</Text>
+        </View>
         {carregando ? (
           <View style={styles.carregando}>
             <ActivityIndicator size="large" color={cores.destaque} />
@@ -62,6 +65,18 @@ const styles = StyleSheet.create({
   tela: {
     flex: 1,
     backgroundColor: cores.fundo,
+  },
+  cabecalho: {
+    backgroundColor: cores.verde,
+    borderBottomColor: cores.destaque,
+    borderBottomWidth: 3,
+    paddingHorizontal: espacamento.medio,
+    paddingVertical: 14,
+  },
+  tituloCabecalho: {
+    color: cores.texto,
+    fontSize: 20,
+    fontWeight: '800',
   },
   conteudo: {
     padding: espacamento.medio,
