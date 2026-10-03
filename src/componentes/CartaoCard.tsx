@@ -7,10 +7,14 @@ interface CartaoCardProps {
   card: Card;
 }
 
+const COLUNA_FEITO = 3;
+
 export default function CartaoCard({ card }: CartaoCardProps) {
+  const concluido = card.colunaId === COLUNA_FEITO;
+
   return (
-    <View style={styles.cartao}>
-      <Text style={styles.titulo}>{card.titulo}</Text>
+    <View style={[styles.cartao, concluido && styles.cartaoConcluido]}>
+      <Text style={[styles.titulo, concluido && styles.tituloConcluido]}>{card.titulo}</Text>
       {card.descricao ? <Text style={styles.descricao}>{card.descricao}</Text> : null}
       <Text style={styles.data}>Criado em {card.criadoEm.toLocaleDateString('pt-BR')}</Text>
     </View>
@@ -26,10 +30,17 @@ const styles = StyleSheet.create({
     padding: espacamento.medio,
     marginBottom: espacamento.pequeno,
   },
+  cartaoConcluido: {
+    borderLeftColor: cores.destaque,
+    opacity: 0.7,
+  },
   titulo: {
     color: cores.texto,
     fontSize: 16,
     fontWeight: '700',
+  },
+  tituloConcluido: {
+    textDecorationLine: 'line-through',
   },
   descricao: {
     color: cores.textoSecundario,
