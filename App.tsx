@@ -1,8 +1,9 @@
-import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { FlatList, StyleSheet, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import CartaoCard from './src/componentes/CartaoCard';
+import FormularioCard from './src/componentes/FormularioCard';
 import { Card } from './src/types/entidades';
 import { cores, espacamento } from './src/tema';
 
@@ -13,15 +14,35 @@ const cardsIniciais: Card[] = [
 ];
 
 export default function App() {
+  const [cards, setCards] = useState<Card[]>(cardsIniciais);
+
+  function adicionarCard(titulo: string, descricao: string) {
+    const proximoId = Math.max(0, ...cards.map((c) => c.id)) + 1;
+    const proximaPosicao = Math.max(0, ...cards.map((c) => c.posicao)) + 1;
+    const novo: Card = {
+      id: proximoId,
+      colunaId: 1,
+      titulo,
+      descricao,
+      posicao: proximaPosicao,
+      criadoEm: new Date(),
+    };
+    setCards([...cards, novo]);
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.tela}>
         <StatusBar style="light" />
-        <ScrollView contentContainerStyle={styles.conteudo}>
-          {cardsIniciais.map((card) => (
-            <CartaoCard key={card.id} card={card} />
-          ))}
-        </ScrollView>
+        <FlatList
+          data={cards}
+          keyExtractor={(card) => String(card.id)}
+          renderItem={({ item }) => <CartaoCard card={item} />}
+          ListHeaderComponent={<FormularioCard aoCriar={adicionarCard} />}
+          ListEmptyComponent={<Text style={styles.vazio}>Nenhum card ainda.</Text>}
+          contentContainerStyle={styles.conteudo}
+          keyboardShouldPersistTaps="handled"
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -34,5 +55,11 @@ const styles = StyleSheet.create({
   },
   conteudo: {
     padding: espacamento.medio,
+  },
+  vazio: {
+    color: cores.textoSecundario,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: espacamento.grande,
   },
 });
