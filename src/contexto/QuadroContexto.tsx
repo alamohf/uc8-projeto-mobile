@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { contarLocal, guardarLocal } from '../banco/banco';
+import { contarLocal, guardarLocal, listarLocal } from '../banco/banco';
 import { buscarCards, descreverErro, incluirCard, moverCard } from '../servicos/cardsServico';
 import { Card } from '../types/entidades';
 import { COLUNA_FAZER } from '../colunas';
@@ -7,7 +7,8 @@ import { COLUNA_FAZER } from '../colunas';
 export type EstadoQuadro =
   | { tipo: 'carregando' }
   | { tipo: 'erro'; mensagem: string }
-  | { tipo: 'pronto'; cards: Card[] };
+  | { tipo: 'pronto'; cards: Card[]; origem: 'nuvem' }
+  | { tipo: 'pronto'; cards: Card[]; origem: 'aparelho'; motivo: string };
 
 interface ValorDoQuadro {
   estado: EstadoQuadro;
@@ -39,14 +40,28 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
     buscarCards()
       .then((cards) => {
         if (!cancelado) {
-          setEstado({ tipo: 'pronto', cards });
+          setEstado({ tipo: 'pronto', cards, origem: 'nuvem' });
         }
         guardarNoAparelho(cards);
       })
       .catch((erro: unknown) => {
-        if (!cancelado) {
-          setEstado({ tipo: 'erro', mensagem: descreverErro(erro) });
-        }
+        const motivo = descreverErro(erro);
+        listarLocal()
+          .then((guardadosLocal) => {
+            if (cancelado) {
+              return;
+            }
+            if (guardadosLocal.length > 0) {
+              setEstado({ tipo: 'pronto', cards: guardadosLocal, origem: 'aparelho', motivo });
+            } else {
+              setEstado({ tipo: 'erro', mensagem: motivo });
+            }
+          })
+          .catch((erroLocal: unknown) => {
+            if (!cancelado) {
+              setEstado({ tipo: 'erro', mensagem: `${motivo} / ${descreverErro(erroLocal)}` });
+            }
+          });
       });
     return () => {
       cancelado = true;
@@ -61,7 +76,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
     const existentes = estado.tipo === 'pronto' ? estado.cards : [];
     const posicao = Math.max(0, ...existentes.map((c) => c.posicao)) + 1;
     const novo = await incluirCard({ colunaId: COLUNA_FAZER, titulo, descricao, posicao });
-    setEstado((atual) => (atual.tipo === 'pronto' ? { tipo: 'pronto', cards: [...atual.cards, novo] } : atual));
+    setEstado((atual) => (atual.tipo === 'pronto' ? { ...atual, cards: [...atual.cards, novo] } : atual));
     return novo;
   }
 
@@ -72,7 +87,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
     const atualizado = await moverCard(id, colunaId, posicao);
     setEstado((atual) =>
       atual.tipo === 'pronto'
-        ? { tipo: 'pronto', cards: atual.cards.map((c) => (c.id === id ? atualizado : c)) }
+        ? { ...atual, cards: atual.cards.map((c) => (c.id === id ? atualizado : c)) }
         : atual,
     );
     return atualizado;

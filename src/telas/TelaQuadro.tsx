@@ -53,26 +53,35 @@ export default function TelaQuadro() {
         );
       case 'pronto':
         return (
-          <SectionList
-            sections={agruparPorColuna(estado.cards)}
-            keyExtractor={(card) => String(card.id)}
-            renderItem={({ item }) => <CartaoCard card={item} aoMudarColuna={moverCard} />}
-            renderSectionHeader={({ section }) => (
-              <View style={styles.secao}>
-                <Text style={styles.tituloSecao}>{nomesColunas[section.colunaId]}</Text>
-                <Text style={styles.contagemSecao}>{section.data.length}</Text>
+          <>
+            {estado.origem === 'aparelho' && (
+              <View style={styles.avisoOffline}>
+                <Text style={styles.textoAvisoOffline}>
+                  Sem conexão: mostrando os cards guardados no aparelho ({estado.motivo})
+                </Text>
               </View>
             )}
-            renderSectionFooter={({ section }) =>
-              section.data.length === 0 ? <Text style={styles.vazio}>Nenhum card nesta coluna.</Text> : null
-            }
-            stickySectionHeadersEnabled={false}
-            ListHeaderComponent={
-              <FormularioCard aoCriar={(titulo, descricao) => incluir(titulo, descricao).then(() => undefined)} />
-            }
-            contentContainerStyle={styles.conteudo}
-            keyboardShouldPersistTaps="handled"
-          />
+            <SectionList
+              sections={agruparPorColuna(estado.cards)}
+              keyExtractor={(card) => String(card.id)}
+              renderItem={({ item }) => <CartaoCard card={item} aoMudarColuna={moverCard} />}
+              renderSectionHeader={({ section }) => (
+                <View style={styles.secao}>
+                  <Text style={styles.tituloSecao}>{nomesColunas[section.colunaId]}</Text>
+                  <Text style={styles.contagemSecao}>{section.data.length}</Text>
+                </View>
+              )}
+              renderSectionFooter={({ section }) =>
+                section.data.length === 0 ? <Text style={styles.vazio}>Nenhum card nesta coluna.</Text> : null
+              }
+              stickySectionHeadersEnabled={false}
+              ListHeaderComponent={
+                <FormularioCard aoCriar={(titulo, descricao) => incluir(titulo, descricao).then(() => undefined)} />
+              }
+              contentContainerStyle={styles.conteudo}
+              keyboardShouldPersistTaps="handled"
+            />
+          </>
         );
     }
   }
@@ -144,6 +153,20 @@ const styles = StyleSheet.create({
   textoAviso: {
     color: cores.erro,
     fontSize: 14,
+    fontWeight: '700',
+  },
+  avisoOffline: {
+    backgroundColor: cores.superficie,
+    borderLeftColor: cores.destaque,
+    borderLeftWidth: 4,
+    marginHorizontal: espacamento.medio,
+    marginTop: espacamento.medio,
+    padding: espacamento.medio,
+    borderRadius: 8,
+  },
+  textoAvisoOffline: {
+    color: cores.destaque,
+    fontSize: 13,
     fontWeight: '700',
   },
   dicaAviso: {
