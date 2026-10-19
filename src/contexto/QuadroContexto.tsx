@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { contarLocal, guardarLocal } from '../banco/banco';
 import { buscarCards, descreverErro, incluirCard, moverCard } from '../servicos/cardsServico';
 import { Card } from '../types/entidades';
 import { COLUNA_FAZER } from '../colunas';
@@ -10,6 +11,7 @@ export type EstadoQuadro =
 
 interface ValorDoQuadro {
   estado: EstadoQuadro;
+  guardados: number | undefined;
   recarregar: () => void;
   incluir: (titulo: string, descricao: string) => Promise<Card>;
   mover: (id: number, colunaId: number) => Promise<Card>;
@@ -19,7 +21,17 @@ const QuadroContexto = createContext<ValorDoQuadro | undefined>(undefined);
 
 export function QuadroProvedor({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<EstadoQuadro>({ tipo: 'carregando' });
+  const [guardados, setGuardados] = useState<number | undefined>(undefined);
   const [tentativa, setTentativa] = useState(0);
+
+  function guardarNoAparelho(cards: Card[]) {
+    guardarLocal(cards)
+      .then(() => contarLocal())
+      .then(setGuardados)
+      .catch((erro: unknown) => {
+        console.warn(`Não foi possível guardar no aparelho: ${descreverErro(erro)}`);
+      });
+  }
 
   useEffect(() => {
     let cancelado = false;
@@ -29,6 +41,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
         if (!cancelado) {
           setEstado({ tipo: 'pronto', cards });
         }
+        guardarNoAparelho(cards);
       })
       .catch((erro: unknown) => {
         if (!cancelado) {
@@ -65,7 +78,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
     return atualizado;
   }
 
-  return <QuadroContexto.Provider value={{ estado, recarregar, incluir, mover }}>{children}</QuadroContexto.Provider>;
+  return <QuadroContexto.Provider value={{ estado, guardados, recarregar, incluir, mover }}>{children}</QuadroContexto.Provider>;
 }
 
 export function useQuadro(): ValorDoQuadro {

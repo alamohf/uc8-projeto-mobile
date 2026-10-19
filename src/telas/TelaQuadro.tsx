@@ -23,7 +23,7 @@ function agruparPorColuna(cards: Card[]): SecaoDaColuna[] {
 }
 
 export default function TelaQuadro() {
-  const { estado, recarregar, incluir, mover } = useQuadro();
+  const { estado, guardados, recarregar, incluir, mover } = useQuadro();
   const [avisoDeErro, setAvisoDeErro] = useState('');
 
   function moverCard(id: number, colunaId: number) {
@@ -82,6 +82,7 @@ export default function TelaQuadro() {
       <StatusBar style="light" />
       <View style={styles.cabecalho}>
         <Text style={styles.tituloCabecalho}>Kanban</Text>
+        <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados}</Text>
       </View>
       {avisoDeErro !== '' ? (
         <Pressable style={styles.aviso} onPress={() => setAvisoDeErro('')}>
@@ -110,6 +111,12 @@ const styles = StyleSheet.create({
     color: cores.texto,
     fontSize: 20,
     fontWeight: '800',
+  },
+  guardados: {
+    color: cores.texto,
+    fontSize: 12,
+    marginTop: 2,
+    opacity: 0.8,
   },
   conteudo: {
     padding: espacamento.medio,
