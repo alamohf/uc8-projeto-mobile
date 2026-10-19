@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { descreverErro } from '../servicos/cardsServico';
 import { cores, espacamento } from '../tema';
 
 interface FormularioCardProps {
-  aoCriar: (titulo: string, descricao: string) => void;
+  aoCriar: (titulo: string, descricao: string) => Promise<void>;
 }
 
 export default function FormularioCard({ aoCriar }: FormularioCardProps) {
@@ -21,10 +22,15 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
       return;
     }
 
-    aoCriar(tituloLimpo, descricaoLimpa);
-    setTitulo('');
-    setDescricao('');
-    setErro('');
+    aoCriar(tituloLimpo, descricaoLimpa)
+      .then(() => {
+        setTitulo('');
+        setDescricao('');
+        setErro('');
+      })
+      .catch((falha: unknown) => {
+        setErro(descreverErro(falha));
+      });
   }
 
   return (
