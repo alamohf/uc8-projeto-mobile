@@ -2,12 +2,35 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ReanimatedSwipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Card } from '../types/entidades';
-import { COLUNA_FAZER, COLUNA_FEITO, nomesColunas } from '../colunas';
+import { COLUNA_FAZENDO, COLUNA_FAZER, COLUNA_FEITO, nomesColunas } from '../colunas';
 import { cores, espacamento } from '../tema';
 
 interface CartaoCardProps {
   card: Card;
   aoMudarColuna: (id: number, colunaId: number) => void;
+}
+
+interface Acao {
+  titulo: string;
+  destino: number;
+  destaque: boolean;
+}
+
+function acoesDaColuna(colunaId: number): Acao[] {
+  switch (colunaId) {
+    case COLUNA_FEITO:
+      return [{ titulo: 'Reabrir', destino: COLUNA_FAZER, destaque: false }];
+    case COLUNA_FAZENDO:
+      return [
+        { titulo: 'Voltar', destino: COLUNA_FAZER, destaque: false },
+        { titulo: 'Concluir', destino: COLUNA_FEITO, destaque: true },
+      ];
+    default:
+      return [
+        { titulo: 'Mover', destino: COLUNA_FAZENDO, destaque: false },
+        { titulo: 'Concluir', destino: COLUNA_FEITO, destaque: true },
+      ];
+  }
 }
 
 export default function CartaoCard({ card, aoMudarColuna }: CartaoCardProps) {
@@ -19,31 +42,22 @@ export default function CartaoCard({ card, aoMudarColuna }: CartaoCardProps) {
   }
 
   function renderAcoes(_progress: unknown, _translation: unknown, swipeable: SwipeableMethods) {
+    const acoes = acoesDaColuna(card.colunaId);
     return (
       <View style={styles.acoes}>
-        {concluido ? (
+        {acoes.map((acao, indice) => (
           <Pressable
-            style={[styles.acao, styles.acaoReabrir]}
-            onPress={() => mudarColuna(swipeable, COLUNA_FAZER)}
+            key={acao.titulo}
+            style={[
+              styles.acao,
+              acao.destaque ? styles.acaoDestaque : styles.acaoVerde,
+              indice === acoes.length - 1 && styles.acaoUltima,
+            ]}
+            onPress={() => mudarColuna(swipeable, acao.destino)}
           >
-            <Text style={styles.textoAcao}>Reabrir</Text>
+            <Text style={acao.destaque ? styles.textoAcaoEscuro : styles.textoAcao}>{acao.titulo}</Text>
           </Pressable>
-        ) : (
-          <>
-            <Pressable
-              style={[styles.acao, styles.acaoMover]}
-              onPress={() => mudarColuna(swipeable, card.colunaId + 1)}
-            >
-              <Text style={styles.textoAcao}>Mover</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.acao, styles.acaoConcluir]}
-              onPress={() => mudarColuna(swipeable, COLUNA_FEITO)}
-            >
-              <Text style={styles.textoAcaoEscuro}>Concluir</Text>
-            </Pressable>
-          </>
-        )}
+        ))}
       </View>
     );
   }
@@ -120,16 +134,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  acaoMover: {
+  acaoVerde: {
     backgroundColor: cores.verde,
   },
-  acaoConcluir: {
+  acaoDestaque: {
     backgroundColor: cores.destaque,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
   },
-  acaoReabrir: {
-    backgroundColor: cores.verde,
+  acaoUltima: {
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
   },
