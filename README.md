@@ -14,18 +14,27 @@ aplicação desktop (Electron + PostgreSQL) de quadro Kanban, com colunas e card
 
 ## Telas
 
-1. **Quadro** — tela inicial, mostra as colunas e os cards de cada uma.
-2. **Coluna** — lista os cards de uma coluna, com botão para novo card.
-3. **Detalhe do Card** — mostra título, descrição e coluna; permite mover para a coluna
-   anterior ou seguinte.
-4. **Formulário de Card** — cria ou edita um card (título, descrição, coluna).
-5. **Busca** — filtra cards por título e/ou coluna.
+O app tem uma tela única, o **Quadro**, pensada para o celular:
+
+- As três colunas fixas (**A fazer**, **Fazendo**, **Feito**) aparecem em seções, cada uma
+  com a contagem de cards.
+- No topo da lista fica o **formulário de card** (título e descrição, ambos obrigatórios).
+  O card novo entra no fim de **A fazer**.
+- Mover um card é deslizar o cartão para a esquerda e tocar numa ação, conforme a coluna:
+  - **A fazer**: *Mover* (vai para Fazendo) ou *Concluir* (vai para Feito);
+  - **Fazendo**: *Voltar* (vai para A fazer) ou *Concluir*;
+  - **Feito**: *Reabrir* (volta para A fazer). O cartão aparece riscado.
+  O card vai para o fim da coluna de destino.
+- A lista tem três estados: carregando, erro (com **Tentar de novo**) e pronto. Se mover
+  ou criar um card falhar, o app mostra a mensagem da API na tela.
 
 ## O que fica de fora
 
-Criação, edição e exclusão de colunas (ficam fixas no recorte mobile); conexão direta com
-PostgreSQL e os handlers do Electron (o app mobile não terá backend próprio nesta unidade);
-atalhos de teclado, menu nativo e geração de instalador do desktop.
+Telas separadas de coluna, detalhe do card e busca (previstas no recorte inicial, não
+implementadas); edição e exclusão de cards; criação, edição e exclusão de colunas (ficam
+fixas no recorte mobile); conexão direta com PostgreSQL e os handlers do Electron (o app
+mobile não tem backend próprio: lê e grava no Supabase pela API REST); atalhos de teclado,
+menu nativo e geração de instalador do desktop.
 
 ## Configuração
 
