@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -10,6 +10,13 @@ import { cores, espacamento } from '../tema';
 
 export default function TelaQuadro() {
   const { estado, recarregar, incluir, mover } = useQuadro();
+  const [avisoDeErro, setAvisoDeErro] = useState('');
+
+  function moverCard(id: number, colunaId: number) {
+    mover(id, colunaId)
+      .then(() => setAvisoDeErro(''))
+      .catch((erro: unknown) => setAvisoDeErro(`Não foi possível mover o card. ${descreverErro(erro)}`));
+  }
 
   function conteudo() {
     switch (estado.tipo) {
@@ -17,7 +24,7 @@ export default function TelaQuadro() {
         return (
           <View style={styles.centro}>
             <ActivityIndicator size="large" color={cores.destaque} />
-            <Text style={styles.aviso}>Carregando cards...</Text>
+            <Text style={styles.textoCarregando}>Carregando cards...</Text>
           </View>
         );
       case 'erro':
@@ -36,12 +43,7 @@ export default function TelaQuadro() {
             data={estado.cards}
             keyExtractor={(card) => String(card.id)}
             renderItem={({ item }) => (
-              <CartaoCard
-                card={item}
-                aoMudarColuna={(id, colunaId) => {
-                  mover(id, colunaId).catch((erro: unknown) => console.warn(descreverErro(erro)));
-                }}
-              />
+              <CartaoCard card={item} aoMudarColuna={moverCard} />
             )}
             ListHeaderComponent={
               <FormularioCard aoCriar={(titulo, descricao) => incluir(titulo, descricao).then(() => undefined)} />
@@ -60,6 +62,12 @@ export default function TelaQuadro() {
       <View style={styles.cabecalho}>
         <Text style={styles.tituloCabecalho}>Kanban</Text>
       </View>
+      {avisoDeErro !== '' ? (
+        <Pressable style={styles.aviso} onPress={() => setAvisoDeErro('')}>
+          <Text style={styles.textoAviso}>{avisoDeErro}</Text>
+          <Text style={styles.dicaAviso}>Toque para fechar</Text>
+        </Pressable>
+      ) : null}
       {conteudo()}
     </SafeAreaView>
   );
@@ -91,10 +99,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: espacamento.medio,
   },
-  aviso: {
+  textoCarregando: {
     color: cores.textoSecundario,
     fontSize: 14,
     marginTop: espacamento.medio,
+  },
+  aviso: {
+    backgroundColor: cores.superficie,
+    borderLeftColor: cores.erro,
+    borderLeftWidth: 4,
+    marginHorizontal: espacamento.medio,
+    marginTop: espacamento.medio,
+    padding: espacamento.medio,
+    borderRadius: 8,
+  },
+  textoAviso: {
+    color: cores.erro,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  dicaAviso: {
+    color: cores.textoSecundario,
+    fontSize: 12,
+    marginTop: 4,
   },
   erro: {
     color: cores.erro,
