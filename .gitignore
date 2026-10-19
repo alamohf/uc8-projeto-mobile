@@ -42,3 +42,6 @@ yarn-error.*
 
 # material de aula
 *.pdf
+
+# pasta de PDFs de aula
+pdf/
