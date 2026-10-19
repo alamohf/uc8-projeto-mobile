@@ -42,7 +42,7 @@ O app lê os cards de um projeto no [Supabase](https://supabase.com) pela API RE
 
    ```
    EXPO_PUBLIC_SUPABASE_URL=https://tgeoijbaxdjaytaofmiu.supabase.co
-   EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_SUA-CHAVE
+   EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_y4DYqlPzrhrH6FPrw6OaAQ_0bWkzPKP
    ```
 
    O `.env.local` fica fora do repositório (`.env*.local` no `.gitignore`). A chave
@@ -53,5 +53,5 @@ O app lê os cards de um projeto no [Supabase](https://supabase.com) pela API RE
 Conferência rápida do projeto na nuvem:
 
 ```
-curl -s "https://tgeoijbaxdjaytaofmiu.supabase.co/rest/v1/cards?select=id,titulo&order=id" -H "apikey: SUA-CHAVE"
+curl -s "https://tgeoijbaxdjaytaofmiu.supabase.co/rest/v1/cards?select=id,titulo&order=id" -H "apikey: sb_publishable_y4DYqlPzrhrH6FPrw6OaAQ_0bWkzPKP"
 ```
