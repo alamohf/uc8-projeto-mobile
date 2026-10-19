@@ -61,6 +61,13 @@ export default function TelaQuadro() {
                 </Text>
               </View>
             )}
+            {estado.pendentes.length > 0 && (
+              <View style={styles.avisoOffline}>
+                <Text style={styles.textoAvisoOffline}>
+                  A enviar ({estado.pendentes.length}): {estado.pendentes.map((pendente) => pendente.titulo).join(', ')}
+                </Text>
+              </View>
+            )}
             <SectionList
               sections={agruparPorColuna(estado.cards)}
               keyExtractor={(card) => String(card.id)}
@@ -76,7 +83,7 @@ export default function TelaQuadro() {
               }
               stickySectionHeadersEnabled={false}
               ListHeaderComponent={
-                <FormularioCard aoCriar={(titulo, descricao) => incluir(titulo, descricao).then(() => undefined)} />
+                <FormularioCard aoCriar={incluir} />
               }
               contentContainerStyle={styles.conteudo}
               keyboardShouldPersistTaps="handled"
