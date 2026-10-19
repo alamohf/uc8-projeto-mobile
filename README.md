@@ -27,6 +27,23 @@ O app tem uma tela única, o **Quadro**, pensada para o celular:
   O card vai para o fim da coluna de destino.
 - A lista tem três estados: carregando, erro (com **Tentar de novo**) e pronto. Se mover
   ou criar um card falhar, o app mostra a mensagem da API na tela.
+- O cabeçalho mostra **Guardados no aparelho: N**, a quantidade de cards no banco local.
+
+## Funcionamento offline
+
+O app guarda uma cópia dos cards num banco SQLite no aparelho (`expo-sqlite`,
+`src/banco/banco.ts`):
+
+- **Cache:** a cada carga da nuvem, e depois de criar ou mover um card, a lista é regravada
+  no banco. Se a nuvem falhar, o app mostra os cards guardados, com um aviso de que vieram
+  do aparelho e o motivo. Sem cache e sem rede, aparece a tela de erro.
+- **Fila de envio:** um card criado sem rede fica na tabela `pendentes` e aparece no aviso
+  **A enviar (N): títulos**. A cada início e a cada **Recarregar**, os pendentes são enviados
+  antes de carregar a lista. Se a API recusar um pendente, ele é descartado.
+- Mover card sem rede **não** entra na fila: o app mostra o erro e o card continua onde estava.
+
+O teste offline é feito no celular com o Expo Go, onde o `expo-sqlite` já vem incluído. No web
+ele funciona com o `metro.config.js` do projeto (módulo wasm), mas o foco é o mobile.
 
 ## O que fica de fora
 
