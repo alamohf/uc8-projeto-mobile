@@ -1,12 +1,26 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import CartaoCard from '../componentes/CartaoCard';
 import FormularioCard from '../componentes/FormularioCard';
+import { nomesColunas, ordemColunas } from '../colunas';
 import { useQuadro } from '../contexto/QuadroContexto';
 import { descreverErro } from '../servicos/cardsServico';
+import { Card } from '../types/entidades';
 import { cores, espacamento } from '../tema';
+
+interface SecaoDaColuna {
+  colunaId: number;
+  data: Card[];
+}
+
+function agruparPorColuna(cards: Card[]): SecaoDaColuna[] {
+  return ordemColunas.map((colunaId) => ({
+    colunaId,
+    data: cards.filter((c) => c.colunaId === colunaId).sort((a, b) => a.posicao - b.posicao || a.id - b.id),
+  }));
+}
 
 export default function TelaQuadro() {
   const { estado, recarregar, incluir, mover } = useQuadro();
@@ -39,16 +53,23 @@ export default function TelaQuadro() {
         );
       case 'pronto':
         return (
-          <FlatList
-            data={estado.cards}
+          <SectionList
+            sections={agruparPorColuna(estado.cards)}
             keyExtractor={(card) => String(card.id)}
-            renderItem={({ item }) => (
-              <CartaoCard card={item} aoMudarColuna={moverCard} />
+            renderItem={({ item }) => <CartaoCard card={item} aoMudarColuna={moverCard} />}
+            renderSectionHeader={({ section }) => (
+              <View style={styles.secao}>
+                <Text style={styles.tituloSecao}>{nomesColunas[section.colunaId]}</Text>
+                <Text style={styles.contagemSecao}>{section.data.length}</Text>
+              </View>
             )}
+            renderSectionFooter={({ section }) =>
+              section.data.length === 0 ? <Text style={styles.vazio}>Nenhum card nesta coluna.</Text> : null
+            }
+            stickySectionHeadersEnabled={false}
             ListHeaderComponent={
               <FormularioCard aoCriar={(titulo, descricao) => incluir(titulo, descricao).then(() => undefined)} />
             }
-            ListEmptyComponent={<Text style={styles.vazio}>Nenhum card ainda.</Text>}
             contentContainerStyle={styles.conteudo}
             keyboardShouldPersistTaps="handled"
           />
@@ -147,10 +168,27 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
   },
+  secao: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: espacamento.pequeno,
+    marginBottom: espacamento.pequeno,
+  },
+  tituloSecao: {
+    color: cores.destaque,
+    fontSize: 14,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  contagemSecao: {
+    color: cores.textoSecundario,
+    fontSize: 13,
+    fontWeight: '700',
+  },
   vazio: {
     color: cores.textoSecundario,
     fontSize: 14,
-    textAlign: 'center',
-    marginTop: espacamento.grande,
+    marginBottom: espacamento.medio,
   },
 });

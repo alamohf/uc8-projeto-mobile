@@ -118,8 +118,8 @@ export async function incluirCard(dados: DadosNovoCard): Promise<Card> {
   return paraCard(corpo[0]);
 }
 
-export async function moverCard(id: number, colunaId: number): Promise<Card> {
-  const corpo = await requisitar(`cards?select=*&id=eq.${id}`, 'PATCH', { coluna_id: colunaId });
+export async function moverCard(id: number, colunaId: number, posicao: number): Promise<Card> {
+  const corpo = await requisitar(`cards?select=*&id=eq.${id}`, 'PATCH', { coluna_id: colunaId, posicao });
   if (!ehListaDeCards(corpo) || corpo.length !== 1) {
     throw new Error('Resposta inesperada da API');
   }

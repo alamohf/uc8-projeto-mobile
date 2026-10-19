@@ -53,7 +53,10 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
   }
 
   async function mover(id: number, colunaId: number): Promise<Card> {
-    const atualizado = await moverCard(id, colunaId);
+    const existentes = estado.tipo === 'pronto' ? estado.cards : [];
+    const doDestino = existentes.filter((c) => c.colunaId === colunaId);
+    const posicao = Math.max(0, ...doDestino.map((c) => c.posicao)) + 1;
+    const atualizado = await moverCard(id, colunaId, posicao);
     setEstado((atual) =>
       atual.tipo === 'pronto'
         ? { tipo: 'pronto', cards: atual.cards.map((c) => (c.id === id ? atualizado : c)) }
