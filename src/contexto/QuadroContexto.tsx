@@ -86,6 +86,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
               return;
             }
             if (guardadosLocal.length > 0 || pendentes.length > 0) {
+              setGuardados(guardadosLocal.length);
               setEstado({ tipo: 'pronto', cards: guardadosLocal, pendentes, origem: 'aparelho', motivo });
             } else {
               setEstado({ tipo: 'erro', mensagem: motivo });
