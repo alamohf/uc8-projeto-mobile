@@ -45,6 +45,28 @@ O app guarda uma cópia dos cards num banco SQLite no aparelho (`expo-sqlite`,
 O teste offline é feito no celular com o Expo Go, onde o `expo-sqlite` já vem incluído. No web
 ele funciona com o `metro.config.js` do projeto (módulo wasm), mas o foco é o mobile.
 
+## Erros e dados no aparelho
+
+- **Um só lugar para os erros** (`src/erros/erros.ts`): `classificarErro` transforma o
+  `unknown` em tipo (`validacao`, `api`, `banco`, `rede`, `desconhecido`), mensagem para a
+  tela e detalhe técnico; `registrarErro` grava o detalhe no console como `[origem] tipo: detalhe`.
+  O banco local lança `ErroDoBanco`.
+- **O banco falhar não derruba a nuvem:** se o SQLite não abre, a lista da nuvem aparece mesmo
+  assim e o cabeçalho mostra **Guardados no aparelho: indisponível**.
+- **Entrada validada** no campo e no provedor (`src/validacao.ts`): título e descrição
+  obrigatórios, título com até 80 caracteres. Se a nuvem recusar o cadastro, a mensagem
+  aparece no formulário.
+- **LGPD:** o app não coleta dado pessoal; guarda só títulos e descrições de cards, no
+  armazenamento interno do aplicativo. O registro de erro leva o detalhe técnico, nunca o texto digitado.
+- **Chave publicável:** identifica o projeto, não a pessoa. O app não tem login e fica no papel
+  `anon`; por isso o `supabase/esquema.sql` tira do `anon` o que o app não usa (`revoke`).
+  Em um projeto já criado, rode o bloco `revoke` no SQL Editor. Conferência (deve dar `401`
+  com o código `42501`):
+
+  ```
+  curl -s -X DELETE "https://tgeoijbaxdjaytaofmiu.supabase.co/rest/v1/cards?id=eq.-1" -H "apikey: sb_publishable_y4DYqlPzrhrH6FPrw6OaAQ_0bWkzPKP" -H "Prefer: return=representation"
+  ```
+
 ## O que fica de fora
 
 Telas separadas de coluna, detalhe do card e busca (previstas no recorte inicial, não
