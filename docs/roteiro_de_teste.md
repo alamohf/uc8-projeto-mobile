@@ -57,6 +57,21 @@ Dados iniciais da nuvem (`supabase/esquema.sql`): **A fazer** com 1 card, **Faze
 | C22 | Exclusão barrada na nuvem | Depois do `revoke` no SQL Editor, rodar o `curl -X DELETE` da seção "Erros e dados no aparelho" do README | Resposta `401` com o código `42501` | aprovado | PC (curl), 28/10/2026 | DELETE em cards e colunas e PATCH em colunas: 401 com código 42501 |
 | C23 | Mover continua permitido após o `revoke` | Depois do `revoke`, repetir C06 | O card muda de coluna e a mudança fica na nuvem (o `update` em `cards` não foi retirado) | aprovado | iPhone, Expo Go (SDK 58), 28/10/2026 | Servidor confirmado antes (PATCH em cards: 200); card movido no iPhone depois do revoke |
 
+## Telas e navegação
+
+| # | Caso | Passos | Esperado | Resultado | Onde e quando | Correção |
+|---|------|--------|----------|-----------|---------------|----------|
+| C28 | Botões do cabeçalho | Abrir o app com a lista pronta | Quadro sem formulário na lista; cabeçalho com os botões **Buscar**, **Novo** e **Sobre** | aprovado | web (Chromium + Playwright, nuvem simulada), 28/10/2026; falta repetir no iPhone | - |
+| C29 | Tela Sobre | Tocar em **Sobre** | Título Kanban, **Versão** 1.0.0, **Guardados no aparelho** com o número e a nota **Seus dados** | aprovado | web (Chromium + Playwright, nuvem simulada), 28/10/2026; falta repetir no iPhone | - |
+| C30 | Voltar de uma tela | Em Sobre, Buscar, Novo ou Detalhe, tocar na seta do cabeçalho (no iPhone, também deslizar da borda esquerda) | Volta à tela anterior, com a lista como estava | aprovado | web (Chromium + Playwright, nuvem simulada), 28/10/2026; falta repetir no iPhone | - |
+| C31 | Busca | Tocar em **Buscar**; ver a dica; digitar `readme`; digitar `inclusao`; digitar `zzzxyz` | Dica **Digite para buscar...**; 1 resultado (Escrever README); acha **Teste inclusão** sem o acento; **Nenhum card encontrado.** | aprovado | web (Chromium + Playwright, nuvem simulada), 28/10/2026; falta repetir no iPhone | - |
+| C32 | Resultado da busca abre o detalhe | Buscar `readme`; tocar no resultado | Detalhe com título, descrição, coluna e data | aprovado | web (Chromium + Playwright, nuvem simulada), 28/10/2026; falta repetir no iPhone | - |
+| C33 | Cartão abre o detalhe | No Quadro, tocar num cartão (sem deslizar) | Detalhe do card aberto | aprovado | web (Chromium + Playwright, nuvem simulada), 28/10/2026; falta repetir no iPhone | - |
+| C34 | Mover pelo detalhe | No detalhe de um card de Fazendo, tocar em **Concluir**; voltar | A coluna do detalhe muda para FEITO e o Quadro mostra o card em Feito, riscado | não executado | - | - |
+| C35 | Novo card em tela própria | Tocar em **Novo**; preencher título e descrição; tocar em **Adicionar** | Volta ao Quadro; o card está no fim de **A fazer**; a linha existe na tabela `cards` | não executado | - | - |
+| C36 | Novo card com recusa da nuvem | Em **Novo**: tocar em **Adicionar** vazio; depois preencher e enviar com a nuvem recusando | **Preencha título e descrição.**; com a recusa, a mensagem aparece e a tela continua no formulário | aprovado | web (Chromium + Playwright, nuvem simulada), 28/10/2026; falta repetir no iPhone (recusa simulada) | - |
+| C37 | Deslizar continua funcionando | No Quadro, deslizar um cartão para a esquerda e tocar numa ação; depois tocar no cartão | A ação move o card; tocar no cartão abre o detalhe (os dois gestos convivem) | não executado | - | - |
+
 ## O que só o aparelho mostra
 
 | # | Caso | Passos | Esperado | Resultado | Onde e quando | Correção |

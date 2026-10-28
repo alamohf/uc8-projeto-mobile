@@ -14,20 +14,27 @@ aplicação desktop (Electron + PostgreSQL) de quadro Kanban, com colunas e card
 
 ## Telas
 
-O app tem uma tela única, o **Quadro**, pensada para o celular:
+O app tem cinco telas, numa pilha do React Navigation (`App.tsx`, rotas em `src/navegacao/rotas.ts`):
 
-- As três colunas fixas (**A fazer**, **Fazendo**, **Feito**) aparecem em seções, cada uma
-  com a contagem de cards.
-- No topo da lista fica o **formulário de card** (título e descrição, ambos obrigatórios).
-  O card novo entra no fim de **A fazer**.
-- Mover um card é deslizar o cartão para a esquerda e tocar numa ação, conforme a coluna:
-  - **A fazer**: *Mover* (vai para Fazendo) ou *Concluir* (vai para Feito);
-  - **Fazendo**: *Voltar* (vai para A fazer) ou *Concluir*;
-  - **Feito**: *Reabrir* (volta para A fazer). O cartão aparece riscado.
-  O card vai para o fim da coluna de destino.
-- A lista tem três estados: carregando, erro (com **Tentar de novo**) e pronto. Se mover
-  ou criar um card falhar, o app mostra a mensagem da API na tela.
-- O cabeçalho mostra **Guardados no aparelho: N**, a quantidade de cards no banco local.
+- **Quadro** (inicial): as três colunas fixas (**A fazer**, **Fazendo**, **Feito**) em seções, cada
+  uma com a contagem de cards. O cabeçalho mostra **Guardados no aparelho: N** e os botões
+  **Buscar**, **Novo** e **Sobre** (Buscar e Novo só aparecem com a lista pronta).
+  - Tocar no cartão abre o **Detalhe**.
+  - Mover um card é deslizar o cartão para a esquerda e tocar numa ação, conforme a coluna:
+    - **A fazer**: *Mover* (vai para Fazendo) ou *Concluir* (vai para Feito);
+    - **Fazendo**: *Voltar* (vai para A fazer) ou *Concluir*;
+    - **Feito**: *Reabrir* (volta para A fazer). O cartão aparece riscado.
+    O card vai para o fim da coluna de destino.
+  - A lista tem três estados: carregando, erro (com **Tentar de novo**) e pronto. Se mover um
+    card falhar, o app mostra a mensagem na tela.
+- **Novo card**: formulário com título (até 80 caracteres) e descrição, ambos obrigatórios. O card
+  novo entra no fim de **A fazer** e a tela volta ao Quadro. Se a nuvem recusar, a mensagem
+  aparece no formulário.
+- **Detalhe**: título, descrição, coluna e data de criação, com os mesmos botões de mover do
+  deslizar (*Mover*, *Concluir*, *Voltar*, *Reabrir*).
+- **Buscar**: filtra os cards por título ou descrição, sem diferenciar maiúsculas nem acentos;
+  tocar num resultado abre o Detalhe.
+- **Sobre**: versão do app, quantos cards estão guardados no aparelho e uma nota sobre os dados.
 
 ## Funcionamento offline
 
@@ -69,8 +76,7 @@ ele funciona com o `metro.config.js` do projeto (módulo wasm), mas o foco é o 
 
 ## O que fica de fora
 
-Telas separadas de coluna, detalhe do card e busca (previstas no recorte inicial, não
-implementadas); edição e exclusão de cards; criação, edição e exclusão de colunas (ficam
+Telas separadas por coluna; edição e exclusão de cards; criação, edição e exclusão de colunas (ficam
 fixas no recorte mobile); conexão direta com PostgreSQL e os handlers do Electron (o app
 mobile não tem backend próprio: lê e grava no Supabase pela API REST); atalhos de teclado,
 menu nativo e geração de instalador do desktop.
