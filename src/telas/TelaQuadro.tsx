@@ -3,10 +3,10 @@ import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import CartaoCard from '../componentes/CartaoCard';
-import FormularioCard from '../componentes/FormularioCard';
 import { nomesColunas, ordemColunas } from '../colunas';
 import { useQuadro } from '../contexto/QuadroContexto';
 import { registrarErro } from '../erros/erros';
+import type { PropsDaTela } from '../navegacao/rotas';
 import { Card } from '../types/entidades';
 import { cores, espacamento } from '../tema';
 
@@ -22,8 +22,8 @@ function agruparPorColuna(cards: Card[]): SecaoDaColuna[] {
   }));
 }
 
-export default function TelaQuadro() {
-  const { estado, guardados, recarregar, incluir, mover } = useQuadro();
+export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
+  const { estado, guardados, recarregar, mover } = useQuadro();
   const [avisoDeErro, setAvisoDeErro] = useState('');
 
   function moverCard(id: number, colunaId: number) {
@@ -82,11 +82,7 @@ export default function TelaQuadro() {
                 section.data.length === 0 ? <Text style={styles.vazio}>Nenhum card nesta coluna.</Text> : null
               }
               stickySectionHeadersEnabled={false}
-              ListHeaderComponent={
-                <FormularioCard aoCriar={incluir} />
-              }
               contentContainerStyle={styles.conteudo}
-              keyboardShouldPersistTaps="handled"
             />
           </>
         );
@@ -97,8 +93,15 @@ export default function TelaQuadro() {
     <SafeAreaView style={styles.tela}>
       <StatusBar style="light" />
       <View style={styles.cabecalho}>
-        <Text style={styles.tituloCabecalho}>Kanban</Text>
-        <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados === 'indisponivel' ? 'indisponível' : guardados}</Text>
+        <View>
+          <Text style={styles.tituloCabecalho}>Kanban</Text>
+          <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados === 'indisponivel' ? 'indisponível' : guardados}</Text>
+        </View>
+        {estado.tipo === 'pronto' ? (
+          <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('NovoCard')}>
+            <Text style={styles.textoBotaoCabecalho}>Novo</Text>
+          </Pressable>
+        ) : null}
       </View>
       {avisoDeErro !== '' ? (
         <Pressable style={styles.aviso} onPress={() => setAvisoDeErro('')}>
@@ -122,6 +125,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     paddingHorizontal: espacamento.medio,
     paddingVertical: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  botaoCabecalho: {
+    backgroundColor: cores.destaque,
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+  },
+  textoBotaoCabecalho: {
+    color: cores.textoSobreDestaque,
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   tituloCabecalho: {
     color: cores.texto,
