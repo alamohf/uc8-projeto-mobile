@@ -6,6 +6,7 @@ import CartaoCard from '../componentes/CartaoCard';
 import { nomesColunas, ordemColunas } from '../colunas';
 import { useQuadro } from '../contexto/QuadroContexto';
 import { registrarErro } from '../erros/erros';
+import { rotuloGuardados } from '../contagem';
 import type { PropsDaTela } from '../navegacao/rotas';
 import { Card } from '../types/entidades';
 import { cores, espacamento } from '../tema';
@@ -94,17 +95,22 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
       <StatusBar style="light" />
       <View style={styles.cabecalho}>
         <Text style={styles.tituloCabecalho}>Kanban</Text>
-        <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados === 'indisponivel' ? 'indisponível' : guardados}</Text>
-        {estado.tipo === 'pronto' ? (
-          <View style={styles.botoesCabecalho}>
-            <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('Busca')}>
-              <Text style={styles.textoBotaoCabecalho}>Buscar</Text>
-            </Pressable>
-            <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('NovoCard')}>
-              <Text style={styles.textoBotaoCabecalho}>Novo</Text>
-            </Pressable>
-          </View>
-        ) : null}
+        <Text style={styles.guardados}>Guardados no aparelho: {rotuloGuardados(guardados)}</Text>
+        <View style={styles.botoesCabecalho}>
+          {estado.tipo === 'pronto' ? (
+            <>
+              <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('Busca')}>
+                <Text style={styles.textoBotaoCabecalho}>Buscar</Text>
+              </Pressable>
+              <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('NovoCard')}>
+                <Text style={styles.textoBotaoCabecalho}>Novo</Text>
+              </Pressable>
+            </>
+          ) : null}
+          <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('Sobre')}>
+            <Text style={styles.textoBotaoCabecalho}>Sobre</Text>
+          </Pressable>
+        </View>
       </View>
       {avisoDeErro !== '' ? (
         <Pressable style={styles.aviso} onPress={() => setAvisoDeErro('')}>

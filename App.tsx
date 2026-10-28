@@ -10,6 +10,7 @@ import TelaBusca from './src/telas/TelaBusca';
 import TelaDetalheCard from './src/telas/TelaDetalheCard';
 import TelaNovoCard from './src/telas/TelaNovoCard';
 import TelaQuadro from './src/telas/TelaQuadro';
+import TelaSobre from './src/telas/TelaSobre';
 import { cores } from './src/tema';
 
 const Pilha = createNativeStackNavigator<RotasDaPilha>();
@@ -37,6 +38,7 @@ export default function App() {
               <Pilha.Screen name="NovoCard" component={TelaNovoCard} options={{ title: 'Novo card' }} />
               <Pilha.Screen name="DetalheCard" component={TelaDetalheCard} options={{ title: 'Card' }} />
               <Pilha.Screen name="Busca" component={TelaBusca} options={{ title: 'Buscar' }} />
+              <Pilha.Screen name="Sobre" component={TelaSobre} options={{ title: 'Sobre' }} />
             </Pilha.Navigator>
           </NavigationContainer>
         </QuadroProvedor>

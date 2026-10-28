@@ -5,6 +5,7 @@ export type RotasDaPilha = {
   NovoCard: undefined;
   DetalheCard: { id: number };
   Busca: undefined;
+  Sobre: undefined;
 };
 
 export type PropsDaTela<R extends keyof RotasDaPilha> = NativeStackScreenProps<RotasDaPilha, R>;
