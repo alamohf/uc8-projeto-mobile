@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { ErroDoBanco } from '../erros/erros';
 import type { DadosNovoCard } from '../servicos/cardsServico';
 import { Card } from '../types/entidades';
 
@@ -47,8 +48,20 @@ function banco(): Promise<SQLite.SQLiteDatabase> {
       `);
       return db;
     });
+    bancoAberto.catch(() => {
+      bancoAberto = undefined;
+    });
   }
   return bancoAberto;
+}
+
+async function noBanco<T>(operacao: (db: SQLite.SQLiteDatabase) => Promise<T>): Promise<T> {
+  try {
+    const db = await banco();
+    return await operacao(db);
+  } catch (erro: unknown) {
+    throw new ErroDoBanco(erro instanceof Error ? erro.message : String(erro));
+  }
 }
 
 function paraCard(linha: LinhaCard): Card {
@@ -63,29 +76,28 @@ function paraCard(linha: LinhaCard): Card {
 }
 
 export async function listarLocal(): Promise<Card[]> {
-  const db = await banco();
-  const linhas = await db.getAllAsync<LinhaCard>(
-    'SELECT id, coluna_id, titulo, descricao, posicao, criado_em FROM cards ORDER BY id',
+  const linhas = await noBanco((db) =>
+    db.getAllAsync<LinhaCard>('SELECT id, coluna_id, titulo, descricao, posicao, criado_em FROM cards ORDER BY id'),
   );
   return linhas.map(paraCard);
 }
 
 export async function guardarLocal(cards: Card[]): Promise<void> {
-  const db = await banco();
-  await db.withTransactionAsync(async () => {
-    await db.runAsync('DELETE FROM cards');
-    for (const card of cards) {
-      await db.runAsync(
-        'INSERT INTO cards (id, coluna_id, titulo, descricao, posicao, criado_em) VALUES (?, ?, ?, ?, ?, ?)',
-        [card.id, card.colunaId, card.titulo, card.descricao ?? null, card.posicao, card.criadoEm.toISOString()],
-      );
-    }
-  });
+  await noBanco((db) =>
+    db.withTransactionAsync(async () => {
+      await db.runAsync('DELETE FROM cards');
+      for (const card of cards) {
+        await db.runAsync(
+          'INSERT INTO cards (id, coluna_id, titulo, descricao, posicao, criado_em) VALUES (?, ?, ?, ?, ?, ?)',
+          [card.id, card.colunaId, card.titulo, card.descricao ?? null, card.posicao, card.criadoEm.toISOString()],
+        );
+      }
+    }),
+  );
 }
 
 export async function contarLocal(): Promise<number> {
-  const db = await banco();
-  const linha = await db.getFirstAsync<{ total: number }>('SELECT COUNT(*) AS total FROM cards');
+  const linha = await noBanco((db) => db.getFirstAsync<{ total: number }>('SELECT COUNT(*) AS total FROM cards'));
   return linha?.total ?? 0;
 }
 
@@ -100,23 +112,24 @@ function paraPendente(linha: LinhaPendente): Pendente {
 }
 
 export async function listarPendentes(): Promise<Pendente[]> {
-  const db = await banco();
-  const linhas = await db.getAllAsync<LinhaPendente>(
-    'SELECT id, coluna_id, titulo, descricao, posicao FROM pendentes ORDER BY id',
+  const linhas = await noBanco((db) =>
+    db.getAllAsync<LinhaPendente>('SELECT id, coluna_id, titulo, descricao, posicao FROM pendentes ORDER BY id'),
   );
   return linhas.map(paraPendente);
 }
 
 export async function guardarPendente(dados: DadosNovoCard): Promise<Pendente> {
-  const db = await banco();
-  const resultado = await db.runAsync(
-    'INSERT INTO pendentes (coluna_id, titulo, descricao, posicao) VALUES (?, ?, ?, ?)',
-    [dados.colunaId, dados.titulo, dados.descricao, dados.posicao],
+  const resultado = await noBanco((db) =>
+    db.runAsync('INSERT INTO pendentes (coluna_id, titulo, descricao, posicao) VALUES (?, ?, ?, ?)', [
+      dados.colunaId,
+      dados.titulo,
+      dados.descricao,
+      dados.posicao,
+    ]),
   );
   return { id: resultado.lastInsertRowId, ...dados };
 }
 
 export async function removerPendente(id: number): Promise<void> {
-  const db = await banco();
-  await db.runAsync('DELETE FROM pendentes WHERE id = ?', [id]);
+  await noBanco((db) => db.runAsync('DELETE FROM pendentes WHERE id = ?', [id]));
 }
