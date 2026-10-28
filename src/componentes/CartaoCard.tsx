@@ -2,38 +2,17 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ReanimatedSwipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Card } from '../types/entidades';
-import { COLUNA_FAZENDO, COLUNA_FAZER, COLUNA_FEITO, nomesColunas } from '../colunas';
+import { acoesDaColuna } from '../acoes';
+import { COLUNA_FEITO, nomesColunas } from '../colunas';
 import { cores, espacamento } from '../tema';
 
 interface CartaoCardProps {
   card: Card;
   aoMudarColuna: (id: number, colunaId: number) => void;
+  aoAbrir: (id: number) => void;
 }
 
-interface Acao {
-  titulo: string;
-  destino: number;
-  destaque: boolean;
-}
-
-function acoesDaColuna(colunaId: number): Acao[] {
-  switch (colunaId) {
-    case COLUNA_FEITO:
-      return [{ titulo: 'Reabrir', destino: COLUNA_FAZER, destaque: false }];
-    case COLUNA_FAZENDO:
-      return [
-        { titulo: 'Voltar', destino: COLUNA_FAZER, destaque: false },
-        { titulo: 'Concluir', destino: COLUNA_FEITO, destaque: true },
-      ];
-    default:
-      return [
-        { titulo: 'Mover', destino: COLUNA_FAZENDO, destaque: false },
-        { titulo: 'Concluir', destino: COLUNA_FEITO, destaque: true },
-      ];
-  }
-}
-
-export default function CartaoCard({ card, aoMudarColuna }: CartaoCardProps) {
+export default function CartaoCard({ card, aoMudarColuna, aoAbrir }: CartaoCardProps) {
   const concluido = card.colunaId === COLUNA_FEITO;
 
   function mudarColuna(swipeable: SwipeableMethods, colunaId: number) {
@@ -69,14 +48,17 @@ export default function CartaoCard({ card, aoMudarColuna }: CartaoCardProps) {
         rightThreshold={40}
         overshootRight={false}
       >
-        <View style={[styles.cartao, concluido && styles.cartaoConcluido]}>
+        <Pressable
+          style={[styles.cartao, concluido && styles.cartaoConcluido]}
+          onPress={() => aoAbrir(card.id)}
+        >
           <Text style={[styles.titulo, concluido && styles.tituloConcluido]}>{card.titulo}</Text>
           {card.descricao ? <Text style={styles.descricao}>{card.descricao}</Text> : null}
           <View style={styles.rodape}>
             <Text style={styles.coluna}>{nomesColunas[card.colunaId] ?? 'Sem coluna'}</Text>
             <Text style={styles.data}>{card.criadoEm.toLocaleDateString('pt-BR')}</Text>
           </View>
-        </View>
+        </Pressable>
       </ReanimatedSwipeable>
     </View>
   );

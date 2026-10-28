@@ -71,7 +71,7 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
             <SectionList
               sections={agruparPorColuna(estado.cards)}
               keyExtractor={(card) => String(card.id)}
-              renderItem={({ item }) => <CartaoCard card={item} aoMudarColuna={moverCard} />}
+              renderItem={({ item }) => <CartaoCard card={item} aoMudarColuna={moverCard} aoAbrir={(id) => navigation.navigate('DetalheCard', { id })} />}
               renderSectionHeader={({ section }) => (
                 <View style={styles.secao}>
                   <Text style={styles.tituloSecao}>{nomesColunas[section.colunaId]}</Text>
