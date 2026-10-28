@@ -8,7 +8,8 @@ import {
   removerPendente,
   type Pendente,
 } from '../banco/banco';
-import { ErroDaApi, buscarCards, descreverErro, incluirCard, moverCard } from '../servicos/cardsServico';
+import { registrarErro } from '../erros/erros';
+import { ErroDaApi, buscarCards, incluirCard, moverCard } from '../servicos/cardsServico';
 import { Card } from '../types/entidades';
 import { COLUNA_FAZER } from '../colunas';
 
@@ -20,7 +21,7 @@ export type EstadoQuadro =
 
 interface ValorDoQuadro {
   estado: EstadoQuadro;
-  guardados: number | undefined;
+  guardados: number | 'indisponivel' | undefined;
   recarregar: () => void;
   incluir: (titulo: string, descricao: string) => Promise<void>;
   mover: (id: number, colunaId: number) => Promise<Card>;
@@ -34,7 +35,7 @@ async function sincronizar(): Promise<void> {
       await incluirCard(pendente);
     } catch (erro: unknown) {
       if (erro instanceof ErroDaApi) {
-        console.warn(`Pendente descartado pela API: ${descreverErro(erro)}`);
+        registrarErro('pendente descartado', erro);
       } else {
         return;
       }
@@ -45,7 +46,7 @@ async function sincronizar(): Promise<void> {
 
 export function QuadroProvedor({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<EstadoQuadro>({ tipo: 'carregando' });
-  const [guardados, setGuardados] = useState<number | undefined>(undefined);
+  const [guardados, setGuardados] = useState<number | 'indisponivel' | undefined>(undefined);
   const [tentativa, setTentativa] = useState(0);
 
   function guardarNoAparelho(cards: Card[]) {
@@ -53,7 +54,8 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
       .then(() => contarLocal())
       .then(setGuardados)
       .catch((erro: unknown) => {
-        console.warn(`Não foi possível guardar no aparelho: ${descreverErro(erro)}`);
+        registrarErro('guardar', erro);
+        setGuardados('indisponivel');
       });
   }
 
@@ -61,16 +63,22 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
     let cancelado = false;
     setEstado({ tipo: 'carregando' });
     sincronizar()
+      .catch((erro: unknown) => {
+        registrarErro('sincronizar', erro);
+      })
       .then(() => buscarCards())
       .then(async (cards) => {
-        const pendentes = await listarPendentes();
+        const pendentes = await listarPendentes().catch((erro: unknown) => {
+          registrarErro('pendentes', erro);
+          return [];
+        });
         if (!cancelado) {
           setEstado({ tipo: 'pronto', cards, pendentes, origem: 'nuvem' });
         }
         guardarNoAparelho(cards);
       })
       .catch((erro: unknown) => {
-        const motivo = descreverErro(erro);
+        const motivo = registrarErro('carga', erro).mensagem;
         Promise.all([listarLocal(), listarPendentes()])
           .then(([guardadosLocal, pendentes]) => {
             if (cancelado) {
@@ -84,7 +92,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
           })
           .catch((erroLocal: unknown) => {
             if (!cancelado) {
-              setEstado({ tipo: 'erro', mensagem: `${motivo} / ${descreverErro(erroLocal)}` });
+              setEstado({ tipo: 'erro', mensagem: `${motivo} ${registrarErro('local', erroLocal).mensagem}` });
             }
           });
       });

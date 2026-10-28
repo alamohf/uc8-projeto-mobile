@@ -6,7 +6,7 @@ import CartaoCard from '../componentes/CartaoCard';
 import FormularioCard from '../componentes/FormularioCard';
 import { nomesColunas, ordemColunas } from '../colunas';
 import { useQuadro } from '../contexto/QuadroContexto';
-import { descreverErro } from '../servicos/cardsServico';
+import { registrarErro } from '../erros/erros';
 import { Card } from '../types/entidades';
 import { cores, espacamento } from '../tema';
 
@@ -29,7 +29,7 @@ export default function TelaQuadro() {
   function moverCard(id: number, colunaId: number) {
     mover(id, colunaId)
       .then(() => setAvisoDeErro(''))
-      .catch((erro: unknown) => setAvisoDeErro(`Não foi possível mover o card. ${descreverErro(erro)}`));
+      .catch((erro: unknown) => setAvisoDeErro(`Não foi possível mover o card. ${registrarErro('mover', erro).mensagem}`));
   }
 
   function conteudo() {
@@ -98,7 +98,7 @@ export default function TelaQuadro() {
       <StatusBar style="light" />
       <View style={styles.cabecalho}>
         <Text style={styles.tituloCabecalho}>Kanban</Text>
-        <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados}</Text>
+        <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados === 'indisponivel' ? 'indisponível' : guardados}</Text>
       </View>
       {avisoDeErro !== '' ? (
         <Pressable style={styles.aviso} onPress={() => setAvisoDeErro('')}>
