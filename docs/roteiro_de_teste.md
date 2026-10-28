@@ -55,7 +55,7 @@ Dados iniciais da nuvem (`supabase/esquema.sql`): **A fazer** com 1 card, **Faze
 | C20 | Banco local indisponível | Em `src/banco/banco.ts`, trocar `'kanban.db'` por `'/nao/existe/kanban.db'`; recarregar o app com rede | A lista da nuvem aparece mesmo assim; o cabeçalho mostra **Guardados no aparelho: indisponível**; o terminal mostra `[guardar] banco: ...`. Desfazer a troca depois | aprovado | web (Chromium + Playwright, rede simulada), 28/10/2026 (wasm do SQLite barrado); falta repetir no iPhone | - |
 | C21 | Título só com espaços | Digitar espaços no título e uma descrição; tocar em Adicionar | **Preencha título e descrição.**; nenhum card novo | aprovado | iPhone, Expo Go (SDK 58), 28/10/2026 | - |
 | C22 | Exclusão barrada na nuvem | Depois do `revoke` no SQL Editor, rodar o `curl -X DELETE` da seção "Erros e dados no aparelho" do README | Resposta `401` com o código `42501` | aprovado | PC (curl), 28/10/2026 | DELETE em cards e colunas e PATCH em colunas: 401 com código 42501 |
-| C23 | Mover continua permitido após o `revoke` | Depois do `revoke`, repetir C06 | O card muda de coluna e a mudança fica na nuvem (o `update` em `cards` não foi retirado) | não executado | - | Servidor confirmado (PATCH em cards: 200); falta mover um card no iPhone depois do revoke |
+| C23 | Mover continua permitido após o `revoke` | Depois do `revoke`, repetir C06 | O card muda de coluna e a mudança fica na nuvem (o `update` em `cards` não foi retirado) | aprovado | iPhone, Expo Go (SDK 58), 28/10/2026 | Servidor confirmado antes (PATCH em cards: 200); card movido no iPhone depois do revoke |
 
 ## O que só o aparelho mostra
 
