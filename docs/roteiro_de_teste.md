@@ -6,12 +6,12 @@ executar no aparelho.
 
 ## Como executar
 
-1. Rodar `npx expo start` e abrir o app no celular com o Expo Go (Android).
+1. Rodar `npx expo start` e abrir o app no celular com o Expo Go (iPhone, lendo o QR code com a câmera).
 2. Fazer os passos como estão escritos. Se precisar de algo a mais, corrigir os passos.
 3. Igual ao esperado: `aprovado`. Diferente: `falha`, com o observado na coluna **Correção**.
 4. **Onde e quando**: aparelho e data (DD/MM/AAAA).
 5. Falhou: corrigir, commit próprio, repetir o caso e marcar `corrigido`.
-6. Sem rede: Wi-Fi e dados móveis desligados. Instalação nova: desinstalar o Expo Go e instalar de novo.
+6. Sem rede: Wi-Fi e dados móveis desligados (ou modo avião). Instalação nova: desinstalar o Expo Go e instalar de novo.
 7. O registro de erro (`[origem] tipo: detalhe`) aparece no terminal onde o Metro roda.
 
 Resultados possíveis: `aprovado`, `falha`, `corrigido`, `não executado`.
@@ -62,6 +62,6 @@ Dados iniciais da nuvem (`supabase/esquema.sql`): **A fazer** com 1 card, **Faze
 | # | Caso | Passos | Esperado | Resultado | Onde e quando | Correção |
 |---|------|--------|----------|-----------|---------------|----------|
 | C24 | Girar a tela | Girar o aparelho com o app aberto | O app continua em retrato (`orientation: portrait`) | não executado | - | - |
-| C25 | Botão voltar do Android | Na tela do Quadro, tocar no botão físico ou gesto de voltar | O app sai para a tela inicial do celular, sem erro | não executado | - | - |
+| C25 | Sair e voltar ao app | Com o Quadro aberto, ir para a tela inicial do iPhone; esperar 10 segundos; voltar ao Expo Go | O Quadro reaparece com os mesmos cards, sem tela de erro | não executado | - | - |
 | C26 | Teclado aberto | Tocar no título para abrir o teclado; sem fechá-lo, tocar em **Adicionar** | O toque vale de primeira, sem precisar fechar o teclado antes | não executado | - | - |
 | C27 | Gesto de deslizar | Deslizar um card para a esquerda e depois para a direita | As ações aparecem à direita do cartão e o cartão volta ao lugar ao soltar | não executado | - | - |
