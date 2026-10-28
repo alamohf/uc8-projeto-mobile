@@ -27,6 +27,12 @@ grant select on public.colunas to anon;
 grant select, insert, update on public.cards to anon;
 grant usage, select on sequence public.cards_id_seq to anon;
 
+-- O Supabase concede todos os privilégios ao papel anon por padrão; o RLS barra as linhas,
+-- mas o privilégio fica. Tira o que o app não usa: cards só lê, inclui e atualiza (mover);
+-- colunas só lê. DELETE com a chave publicável passa a responder 401 (42501).
+revoke delete on public.cards from anon;
+revoke insert, update, delete on public.colunas from anon;
+
 insert into public.colunas (titulo, posicao) values
   ('A fazer', 1),
   ('Fazendo', 2),
