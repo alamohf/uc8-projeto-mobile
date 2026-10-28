@@ -20,6 +20,15 @@ export interface ErroClassificado {
   detalhe: string;
 }
 
+// Sem rede, o fetch do React Native lança TypeError ("Network request failed", "Failed to fetch" no web);
+// o fetch do Expo (SDK 58 no aparelho) lança um FetchError comum, de mensagem "fetch failed: ...".
+function ehFalhaDeRede(erro: unknown): boolean {
+  if (erro instanceof TypeError) {
+    return true;
+  }
+  return erro instanceof Error && /^fetch failed|network request failed|failed to fetch/i.test(erro.message);
+}
+
 export function classificarErro(erro: unknown): ErroClassificado {
   if (erro instanceof ErroDeValidacao) {
     return { tipo: 'validacao', mensagem: erro.message, detalhe: `${erro.name}: ${erro.message}` };
@@ -38,7 +47,7 @@ export function classificarErro(erro: unknown): ErroClassificado {
       detalhe: `${erro.name}: ${erro.message}`,
     };
   }
-  if (erro instanceof TypeError) {
+  if (ehFalhaDeRede(erro) && erro instanceof Error) {
     return {
       tipo: 'rede',
       mensagem: 'Sem conexão com o servidor. Confira a internet e tente de novo.',
