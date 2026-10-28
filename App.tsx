@@ -1,16 +1,38 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
+import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QuadroProvedor } from './src/contexto/QuadroContexto';
+import type { RotasDaPilha } from './src/navegacao/rotas';
 import TelaQuadro from './src/telas/TelaQuadro';
+import { cores } from './src/tema';
+
+const Pilha = createNativeStackNavigator<RotasDaPilha>();
+
+const temaDoApp = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: cores.fundo,
+    card: cores.verde,
+    text: cores.texto,
+    primary: cores.destaque,
+    border: cores.borda,
+  },
+};
 
 export default function App() {
   return (
     <GestureHandlerRootView style={styles.raiz}>
       <SafeAreaProvider>
         <QuadroProvedor>
-          <TelaQuadro />
+          <NavigationContainer theme={temaDoApp}>
+            <Pilha.Navigator initialRouteName="Quadro">
+              <Pilha.Screen name="Quadro" component={TelaQuadro} options={{ headerShown: false }} />
+            </Pilha.Navigator>
+          </NavigationContainer>
         </QuadroProvedor>
       </SafeAreaProvider>
     </GestureHandlerRootView>
