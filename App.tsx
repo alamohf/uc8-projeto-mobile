@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QuadroProvedor } from './src/contexto/QuadroContexto';
 import type { RotasDaPilha } from './src/navegacao/rotas';
+import TelaBusca from './src/telas/TelaBusca';
 import TelaDetalheCard from './src/telas/TelaDetalheCard';
 import TelaNovoCard from './src/telas/TelaNovoCard';
 import TelaQuadro from './src/telas/TelaQuadro';
@@ -35,6 +36,7 @@ export default function App() {
               <Pilha.Screen name="Quadro" component={TelaQuadro} options={{ headerShown: false }} />
               <Pilha.Screen name="NovoCard" component={TelaNovoCard} options={{ title: 'Novo card' }} />
               <Pilha.Screen name="DetalheCard" component={TelaDetalheCard} options={{ title: 'Card' }} />
+              <Pilha.Screen name="Busca" component={TelaBusca} options={{ title: 'Buscar' }} />
             </Pilha.Navigator>
           </NavigationContainer>
         </QuadroProvedor>

@@ -93,14 +93,17 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
     <SafeAreaView style={styles.tela}>
       <StatusBar style="light" />
       <View style={styles.cabecalho}>
-        <View>
-          <Text style={styles.tituloCabecalho}>Kanban</Text>
-          <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados === 'indisponivel' ? 'indisponível' : guardados}</Text>
-        </View>
+        <Text style={styles.tituloCabecalho}>Kanban</Text>
+        <Text style={styles.guardados}>Guardados no aparelho: {guardados === undefined ? '...' : guardados === 'indisponivel' ? 'indisponível' : guardados}</Text>
         {estado.tipo === 'pronto' ? (
-          <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('NovoCard')}>
-            <Text style={styles.textoBotaoCabecalho}>Novo</Text>
-          </Pressable>
+          <View style={styles.botoesCabecalho}>
+            <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('Busca')}>
+              <Text style={styles.textoBotaoCabecalho}>Buscar</Text>
+            </Pressable>
+            <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('NovoCard')}>
+              <Text style={styles.textoBotaoCabecalho}>Novo</Text>
+            </Pressable>
+          </View>
         ) : null}
       </View>
       {avisoDeErro !== '' ? (
@@ -125,15 +128,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     paddingHorizontal: espacamento.medio,
     paddingVertical: 14,
+  },
+  botoesCabecalho: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    marginTop: 10,
   },
   botaoCabecalho: {
+    flex: 1,
     backgroundColor: cores.destaque,
     borderRadius: 6,
     paddingVertical: 8,
-    paddingHorizontal: 14,
+    alignItems: 'center',
+    marginRight: espacamento.pequeno,
   },
   textoBotaoCabecalho: {
     color: cores.textoSobreDestaque,
