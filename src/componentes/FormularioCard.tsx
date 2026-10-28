@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { descreverErro } from '../servicos/cardsServico';
+import { registrarErro } from '../erros/erros';
 import { cores, espacamento } from '../tema';
+import { TAMANHO_MAXIMO_TITULO, mensagemDoCard } from '../validacao';
 
 interface FormularioCardProps {
   aoCriar: (titulo: string, descricao: string) => Promise<void>;
@@ -17,8 +18,9 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
     const tituloLimpo = titulo.trim();
     const descricaoLimpa = descricao.trim();
 
-    if (tituloLimpo === '' || descricaoLimpa === '') {
-      setErro('Preencha título e descrição.');
+    const recusa = mensagemDoCard(tituloLimpo, descricaoLimpa);
+    if (recusa !== undefined) {
+      setErro(recusa);
       return;
     }
 
@@ -29,7 +31,7 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
         setErro('');
       })
       .catch((falha: unknown) => {
-        setErro(descreverErro(falha));
+        setErro(registrarErro('cadastro', falha).mensagem);
       });
   }
 
@@ -39,6 +41,7 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
         style={styles.campo}
         value={titulo}
         onChangeText={setTitulo}
+        maxLength={TAMANHO_MAXIMO_TITULO}
         placeholder="Título"
         placeholderTextColor={cores.textoSecundario}
       />

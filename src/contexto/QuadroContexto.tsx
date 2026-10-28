@@ -12,6 +12,7 @@ import { registrarErro } from '../erros/erros';
 import { ErroDaApi, buscarCards, incluirCard, moverCard } from '../servicos/cardsServico';
 import { Card } from '../types/entidades';
 import { COLUNA_FAZER } from '../colunas';
+import { validarNovoCard } from '../validacao';
 
 export type EstadoQuadro =
   | { tipo: 'carregando' }
@@ -106,6 +107,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
   }
 
   async function incluir(titulo: string, descricao: string): Promise<void> {
+    validarNovoCard(titulo, descricao);
     const existentes = estado.tipo === 'pronto' ? estado.cards : [];
     const posicao = Math.max(0, ...existentes.map((c) => c.posicao)) + 1;
     const dados = { colunaId: COLUNA_FAZER, titulo, descricao, posicao };
