@@ -25,6 +25,12 @@
     "plugins": [
       "expo-sqlite",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f7405961-ae57-42c9-89bb-a88b26821a89"
+      }
+    },
+    "owner": "alamohf"
   }
 }
