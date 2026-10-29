@@ -51,8 +51,9 @@ O app guarda uma cópia dos cards num banco SQLite no aparelho (`expo-sqlite`,
   no banco. Se a nuvem falhar, o app mostra os cards guardados, com um aviso de que vieram
   do aparelho e o motivo. Sem cache e sem rede, aparece a tela de erro.
 - **Fila de envio:** um card criado sem rede fica na tabela `pendentes` e aparece no aviso
-  **A enviar (N): títulos**. A cada início e a cada **Recarregar**, os pendentes são enviados
-  antes de carregar a lista. Se a API recusar um pendente, ele é descartado.
+  **A enviar (N): títulos**. Os pendentes são enviados antes de carregar a lista, a cada
+  início do app, ao **puxar a lista para baixo** (atualizar) e quando o app **volta ao primeiro plano** com
+  pendentes, com a lista vinda do aparelho ou na tela de erro. Voltar a internet sozinha não dispara o envio. Se a API recusar um pendente, ele é descartado.
 - Mover card sem rede **não** entra na fila: o app mostra o erro e o card continua onde estava.
 
 O teste offline é feito no celular com o Expo Go, onde o `expo-sqlite` já vem incluído. No web

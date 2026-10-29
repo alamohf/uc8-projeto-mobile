@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { AppState } from 'react-native';
 import {
   contarLocal,
   guardarLocal,
@@ -23,6 +24,7 @@ export type EstadoQuadro =
 interface ValorDoQuadro {
   estado: EstadoQuadro;
   guardados: number | 'indisponivel' | undefined;
+  atualizando: boolean;
   recarregar: () => void;
   incluir: (titulo: string, descricao: string) => Promise<void>;
   mover: (id: number, colunaId: number) => Promise<Card>;
@@ -49,6 +51,9 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<EstadoQuadro>({ tipo: 'carregando' });
   const [guardados, setGuardados] = useState<number | 'indisponivel' | undefined>(undefined);
   const [tentativa, setTentativa] = useState(0);
+  const [atualizando, setAtualizando] = useState(false);
+  const estadoAtual = useRef(estado);
+  estadoAtual.current = estado;
 
   function guardarNoAparelho(cards: Card[]) {
     guardarLocal(cards)
@@ -62,7 +67,8 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelado = false;
-    setEstado({ tipo: 'carregando' });
+    setAtualizando(true);
+    setEstado((atual) => (atual.tipo === 'pronto' ? atual : { tipo: 'carregando' }));
     sincronizar()
       .catch((erro: unknown) => {
         registrarErro('sincronizar', erro);
@@ -80,7 +86,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
       })
       .catch((erro: unknown) => {
         const motivo = registrarErro('carga', erro).mensagem;
-        Promise.all([listarLocal(), listarPendentes()])
+        return Promise.all([listarLocal(), listarPendentes()])
           .then(([guardadosLocal, pendentes]) => {
             if (cancelado) {
               return;
@@ -97,11 +103,28 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
               setEstado({ tipo: 'erro', mensagem: `${motivo} ${registrarErro('local', erroLocal).mensagem}` });
             }
           });
+      })
+      .finally(() => {
+        if (!cancelado) {
+          setAtualizando(false);
+        }
       });
     return () => {
       cancelado = true;
     };
   }, [tentativa]);
+
+  useEffect(() => {
+    const assinatura = AppState.addEventListener('change', (proximo) => {
+      const atual = estadoAtual.current;
+      const desatualizado =
+        atual.tipo === 'erro' || (atual.tipo === 'pronto' && (atual.origem === 'aparelho' || atual.pendentes.length > 0));
+      if (proximo === 'active' && desatualizado) {
+        setTentativa((anterior) => anterior + 1);
+      }
+    });
+    return () => assinatura.remove();
+  }, []);
 
   function recarregar() {
     setTentativa(tentativa + 1);
@@ -142,7 +165,7 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
     return atualizado;
   }
 
-  return <QuadroContexto.Provider value={{ estado, guardados, recarregar, incluir, mover }}>{children}</QuadroContexto.Provider>;
+  return <QuadroContexto.Provider value={{ estado, guardados, atualizando, recarregar, incluir, mover }}>{children}</QuadroContexto.Provider>;
 }
 
 export function useQuadro(): ValorDoQuadro {

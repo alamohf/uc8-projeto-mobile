@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import CartaoCard from '../componentes/CartaoCard';
@@ -24,7 +24,7 @@ function agruparPorColuna(cards: Card[]): SecaoDaColuna[] {
 }
 
 export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
-  const { estado, guardados, recarregar, mover } = useQuadro();
+  const { estado, guardados, atualizando, recarregar, mover } = useQuadro();
   const [avisoDeErro, setAvisoDeErro] = useState('');
 
   function moverCard(id: number, colunaId: number) {
@@ -88,6 +88,15 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
                 section.data.length === 0 ? <Text style={styles.vazio}>Nenhum card nesta coluna.</Text> : null
               }
               stickySectionHeadersEnabled={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={atualizando}
+                  onRefresh={recarregar}
+                  tintColor={cores.primaria}
+                  colors={[cores.primaria]}
+                  progressBackgroundColor={cores.cartao}
+                />
+              }
               contentContainerStyle={styles.conteudo}
             />
           </>
