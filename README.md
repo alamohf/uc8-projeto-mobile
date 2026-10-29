@@ -128,8 +128,8 @@ O `eas.json` tem o perfil `preview`, que gera um **APK** para instalar direto no
 3. Cadastre as variáveis do app no EAS, porque o `.env.local` não vai para o build:
 
    ```
-   npx eas-cli env:create --environment preview --name EXPO_PUBLIC_SUPABASE_URL --value <url> --visibility plaintext
-   npx eas-cli env:create --environment preview --name EXPO_PUBLIC_SUPABASE_KEY --value <chave> --visibility plaintext
+   npx eas-cli env:set --environment preview --name EXPO_PUBLIC_SUPABASE_URL --value <url> --visibility plaintext
+   npx eas-cli env:set --environment preview --name EXPO_PUBLIC_SUPABASE_KEY --value <chave> --visibility plaintext
    ```
 
 4. Gere o APK: `npx eas-cli build -p android --profile preview`. Ao terminar, o EAS mostra o link e o QR code
