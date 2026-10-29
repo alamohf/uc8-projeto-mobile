@@ -117,3 +117,21 @@ Conferência rápida do projeto na nuvem:
 ```
 curl -s "https://tgeoijbaxdjaytaofmiu.supabase.co/rest/v1/cards?select=id,titulo&order=id" -H "apikey: sb_publishable_y4DYqlPzrhrH6FPrw6OaAQ_0bWkzPKP"
 ```
+
+## APK para Android (EAS Build)
+
+O `eas.json` tem o perfil `preview`, que gera um **APK** para instalar direto no aparelho. O pacote Android é
+`br.com.alamohf.kanban` e o nome do app é **Kanban** (`app.json`).
+
+1. Crie uma conta em [expo.dev](https://expo.dev) e entre: `npx eas-cli login`.
+2. Vincule o projeto (uma vez): `npx eas-cli init`.
+3. Cadastre as variáveis do app no EAS, porque o `.env.local` não vai para o build:
+
+   ```
+   npx eas-cli env:create --environment preview --name EXPO_PUBLIC_SUPABASE_URL --value <url> --visibility plaintext
+   npx eas-cli env:create --environment preview --name EXPO_PUBLIC_SUPABASE_KEY --value <chave> --visibility plaintext
+   ```
+
+4. Gere o APK: `npx eas-cli build -p android --profile preview`. Ao terminar, o EAS mostra o link e o QR code
+   para baixar o `.apk`.
+
