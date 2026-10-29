@@ -4,6 +4,7 @@ import ReanimatedSwipeable, { SwipeableMethods } from 'react-native-gesture-hand
 import { Card } from '../types/entidades';
 import { acoesDaColuna } from '../acoes';
 import { COLUNA_FEITO, nomesColunas } from '../colunas';
+import { diasEntre, rotuloDuracao } from '../duracao';
 import { cores, espacamento, estiloDaColuna, estiloSemColuna, raios } from '../tema';
 
 interface CartaoCardProps {
@@ -60,7 +61,12 @@ export default function CartaoCard({ card, aoMudarColuna, aoAbrir }: CartaoCardP
               <View style={[styles.ponto, { backgroundColor: estiloColuna.cor }]} />
               <Text style={[styles.coluna, { color: estiloColuna.cor }]}>{nomesColunas[card.colunaId] ?? 'Sem coluna'}</Text>
             </View>
-            <Text style={styles.data}>{card.criadoEm.toLocaleDateString('pt-BR')}</Text>
+            <View style={styles.datas}>
+              <Text style={styles.data}>{card.criadoEm.toLocaleDateString('pt-BR')}</Text>
+              {concluido && card.concluidoEm !== undefined ? (
+                <Text style={styles.duracao}>Levou {rotuloDuracao(diasEntre(card.criadoEm, card.concluidoEm))}</Text>
+              ) : null}
+            </View>
           </View>
         </Pressable>
       </ReanimatedSwipeable>
@@ -123,9 +129,18 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
+  datas: {
+    alignItems: 'flex-end',
+  },
   data: {
     color: cores.textoSecundario,
     fontSize: 12,
+  },
+  duracao: {
+    color: cores.sucesso,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 2,
   },
   acoes: {
     flexDirection: 'row',

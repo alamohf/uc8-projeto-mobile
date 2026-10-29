@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { acoesDaColuna } from '../acoes';
 import { COLUNA_FEITO, nomesColunas } from '../colunas';
+import { diasEntre, rotuloDuracao } from '../duracao';
 import { useQuadro } from '../contexto/QuadroContexto';
 import { registrarErro } from '../erros/erros';
 import type { PropsDaTela } from '../navegacao/rotas';
@@ -42,6 +43,18 @@ export default function TelaDetalheCard({ route }: PropsDaTela<'DetalheCard'>) {
         <Text style={styles.rotulo}>Criado em</Text>
         <Text style={styles.valor}>{card.criadoEm.toLocaleDateString('pt-BR')}</Text>
       </View>
+      {concluido && card.concluidoEm !== undefined ? (
+        <>
+          <View style={styles.linha}>
+            <Text style={styles.rotulo}>Concluído em</Text>
+            <Text style={styles.valor}>{card.concluidoEm.toLocaleDateString('pt-BR')}</Text>
+          </View>
+          <View style={styles.linha}>
+            <Text style={styles.rotulo}>Tempo para concluir</Text>
+            <Text style={styles.valorSucesso}>{rotuloDuracao(diasEntre(card.criadoEm, card.concluidoEm))}</Text>
+          </View>
+        </>
+      ) : null}
       {avisoDeErro !== '' ? <Text style={styles.erro}>{avisoDeErro}</Text> : null}
       <View style={styles.acoes}>
         {acoesDaColuna(card.colunaId).map((acao) => (
@@ -105,6 +118,11 @@ const styles = StyleSheet.create({
   valor: {
     color: cores.texto,
     fontSize: 14,
+  },
+  valorSucesso: {
+    color: cores.sucesso,
+    fontSize: 14,
+    fontWeight: '700',
   },
   erro: {
     color: cores.erro,
