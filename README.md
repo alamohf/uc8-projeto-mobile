@@ -14,11 +14,13 @@ aplicação desktop (Electron + PostgreSQL) de quadro Kanban, com colunas e card
 
 ## Telas
 
-O app tem cinco telas, numa pilha do React Navigation (`App.tsx`, rotas em `src/navegacao/rotas.ts`):
+O app tem cinco telas, numa pilha do React Navigation (`App.tsx`, rotas em `src/navegacao/rotas.ts`).
+O visual segue o layout do Stitch (tema escuro azul-marinho com ciano, cores em `src/tema.ts`):
 
 - **Quadro** (inicial): as três colunas fixas (**A fazer**, **Fazendo**, **Feito**) em seções, cada
   uma com a contagem de cards. O cabeçalho mostra **Guardados no aparelho: N** e os botões
-  **Buscar**, **Novo** e **Sobre** (Buscar e Novo só aparecem com a lista pronta).
+  **Buscar** e **Sobre**; o botão flutuante **Novo** abre o cadastro (Buscar e Novo só aparecem com
+  a lista pronta).
   - Tocar no cartão abre o **Detalhe**.
   - Mover um card é deslizar o cartão para a esquerda e tocar numa ação, conforme a coluna:
     - **A fazer**: *Mover* (vai para Fazendo) ou *Concluir* (vai para Feito);
