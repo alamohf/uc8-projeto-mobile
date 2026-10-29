@@ -4,7 +4,7 @@ import ReanimatedSwipeable, { SwipeableMethods } from 'react-native-gesture-hand
 import { Card } from '../types/entidades';
 import { acoesDaColuna } from '../acoes';
 import { COLUNA_FEITO, nomesColunas } from '../colunas';
-import { cores, espacamento } from '../tema';
+import { cores, espacamento, estiloDaColuna, estiloSemColuna, raios } from '../tema';
 
 interface CartaoCardProps {
   card: Card;
@@ -14,6 +14,7 @@ interface CartaoCardProps {
 
 export default function CartaoCard({ card, aoMudarColuna, aoAbrir }: CartaoCardProps) {
   const concluido = card.colunaId === COLUNA_FEITO;
+  const estiloColuna = estiloDaColuna[card.colunaId] ?? estiloSemColuna;
 
   function mudarColuna(swipeable: SwipeableMethods, colunaId: number) {
     swipeable.close();
@@ -29,7 +30,7 @@ export default function CartaoCard({ card, aoMudarColuna, aoAbrir }: CartaoCardP
             key={acao.titulo}
             style={[
               styles.acao,
-              acao.destaque ? styles.acaoDestaque : styles.acaoVerde,
+              acao.destaque ? styles.acaoDestaque : styles.acaoSecundaria,
               indice === acoes.length - 1 && styles.acaoUltima,
             ]}
             onPress={() => mudarColuna(swipeable, acao.destino)}
@@ -55,7 +56,10 @@ export default function CartaoCard({ card, aoMudarColuna, aoAbrir }: CartaoCardP
           <Text style={[styles.titulo, concluido && styles.tituloConcluido]}>{card.titulo}</Text>
           {card.descricao ? <Text style={styles.descricao}>{card.descricao}</Text> : null}
           <View style={styles.rodape}>
-            <Text style={styles.coluna}>{nomesColunas[card.colunaId] ?? 'Sem coluna'}</Text>
+            <View style={[styles.selo, { backgroundColor: estiloColuna.tinta }]}>
+              <View style={[styles.ponto, { backgroundColor: estiloColuna.cor }]} />
+              <Text style={[styles.coluna, { color: estiloColuna.cor }]}>{nomesColunas[card.colunaId] ?? 'Sem coluna'}</Text>
+            </View>
             <Text style={styles.data}>{card.criadoEm.toLocaleDateString('pt-BR')}</Text>
           </View>
         </Pressable>
@@ -69,38 +73,54 @@ const styles = StyleSheet.create({
     marginBottom: espacamento.pequeno,
   },
   cartao: {
-    backgroundColor: cores.superficie,
-    borderLeftWidth: 4,
-    borderLeftColor: cores.verde,
-    borderRadius: 8,
-    padding: espacamento.medio,
+    backgroundColor: cores.cartao,
+    borderColor: cores.borda,
+    borderWidth: 1,
+    borderRadius: raios.cartao,
+    padding: espacamento.md,
   },
   cartaoConcluido: {
-    borderLeftColor: cores.destaque,
-    opacity: 0.7,
+    backgroundColor: cores.superficie,
   },
   titulo: {
     color: cores.texto,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 20,
   },
   tituloConcluido: {
+    color: cores.textoSecundario,
     textDecorationLine: 'line-through',
   },
   descricao: {
     color: cores.textoSecundario,
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: espacamento.xs,
   },
   rodape: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: espacamento.pequeno,
+    alignItems: 'center',
+    marginTop: espacamento.md,
+  },
+  selo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: raios.selo,
+    paddingHorizontal: espacamento.pequeno,
+    paddingVertical: espacamento.xs,
+  },
+  ponto: {
+    width: 6,
+    height: 6,
+    borderRadius: raios.pilula,
+    marginRight: 6,
   },
   coluna: {
-    color: cores.destaque,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
+    letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   data: {
@@ -116,15 +136,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  acaoVerde: {
-    backgroundColor: cores.verde,
+  acaoSecundaria: {
+    backgroundColor: cores.cartaoAtivo,
   },
   acaoDestaque: {
-    backgroundColor: cores.destaque,
+    backgroundColor: cores.primaria,
   },
   acaoUltima: {
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
+    borderTopRightRadius: raios.cartao,
+    borderBottomRightRadius: raios.cartao,
   },
   textoAcao: {
     color: cores.texto,
@@ -132,7 +152,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   textoAcaoEscuro: {
-    color: cores.textoSobreDestaque,
+    color: cores.textoSobrePrimaria,
     fontSize: 13,
     fontWeight: '700',
   },

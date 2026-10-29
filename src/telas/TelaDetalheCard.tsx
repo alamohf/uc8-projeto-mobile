@@ -5,7 +5,7 @@ import { COLUNA_FEITO, nomesColunas } from '../colunas';
 import { useQuadro } from '../contexto/QuadroContexto';
 import { registrarErro } from '../erros/erros';
 import type { PropsDaTela } from '../navegacao/rotas';
-import { cores, espacamento } from '../tema';
+import { cores, espacamento, estiloDaColuna, estiloSemColuna, raios } from '../tema';
 
 export default function TelaDetalheCard({ route }: PropsDaTela<'DetalheCard'>) {
   const { estado, mover } = useQuadro();
@@ -22,6 +22,7 @@ export default function TelaDetalheCard({ route }: PropsDaTela<'DetalheCard'>) {
   }
 
   const concluido = card.colunaId === COLUNA_FEITO;
+  const estiloColuna = estiloDaColuna[card.colunaId] ?? estiloSemColuna;
 
   function moverPara(colunaId: number) {
     mover(route.params.id, colunaId)
@@ -35,7 +36,7 @@ export default function TelaDetalheCard({ route }: PropsDaTela<'DetalheCard'>) {
       <Text style={styles.descricao}>{card.descricao ?? 'Sem descrição.'}</Text>
       <View style={styles.linha}>
         <Text style={styles.rotulo}>Coluna</Text>
-        <Text style={styles.coluna}>{nomesColunas[card.colunaId] ?? 'Sem coluna'}</Text>
+        <Text style={[styles.coluna, { color: estiloColuna.cor }]}>{nomesColunas[card.colunaId] ?? 'Sem coluna'}</Text>
       </View>
       <View style={styles.linha}>
         <Text style={styles.rotulo}>Criado em</Text>
@@ -46,7 +47,7 @@ export default function TelaDetalheCard({ route }: PropsDaTela<'DetalheCard'>) {
         {acoesDaColuna(card.colunaId).map((acao) => (
           <Pressable
             key={acao.titulo}
-            style={[styles.acao, acao.destaque ? styles.acaoDestaque : styles.acaoVerde]}
+            style={[styles.acao, acao.destaque ? styles.acaoDestaque : styles.acaoSecundaria]}
             onPress={() => moverPara(acao.destino)}
           >
             <Text style={acao.destaque ? styles.textoAcaoEscuro : styles.textoAcao}>{acao.titulo}</Text>
@@ -97,7 +98,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   coluna: {
-    color: cores.destaque,
     fontSize: 14,
     fontWeight: '700',
     textTransform: 'uppercase',
@@ -118,16 +118,17 @@ const styles = StyleSheet.create({
   },
   acao: {
     flex: 1,
-    borderRadius: 6,
-    paddingVertical: 12,
+    borderRadius: raios.campo,
+    height: 48,
+    justifyContent: 'center',
     alignItems: 'center',
     marginRight: espacamento.pequeno,
   },
-  acaoVerde: {
-    backgroundColor: cores.verde,
+  acaoSecundaria: {
+    backgroundColor: cores.cartaoAtivo,
   },
   acaoDestaque: {
-    backgroundColor: cores.destaque,
+    backgroundColor: cores.primaria,
   },
   textoAcao: {
     color: cores.texto,
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   textoAcaoEscuro: {
-    color: cores.textoSobreDestaque,
+    color: cores.textoSobrePrimaria,
     fontSize: 14,
     fontWeight: '700',
     textTransform: 'uppercase',

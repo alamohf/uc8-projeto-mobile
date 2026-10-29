@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { registrarErro } from '../erros/erros';
-import { cores, espacamento } from '../tema';
+import { cores, espacamento, raios } from '../tema';
 import { TAMANHO_MAXIMO_TITULO, mensagemDoCard } from '../validacao';
 
 interface FormularioCardProps {
@@ -13,6 +13,7 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
   const [descricao, setDescricao] = useState('');
 
   const [erro, setErro] = useState('');
+  const [focado, setFocado] = useState<'titulo' | 'descricao' | null>(null);
 
   function enviar() {
     const tituloLimpo = titulo.trim();
@@ -38,17 +39,21 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
   return (
     <View style={styles.formulario}>
       <TextInput
-        style={styles.campo}
+        style={[styles.campo, focado === 'titulo' && styles.campoFocado]}
         value={titulo}
         onChangeText={setTitulo}
+        onFocus={() => setFocado('titulo')}
+        onBlur={() => setFocado(null)}
         maxLength={TAMANHO_MAXIMO_TITULO}
         placeholder="Título"
         placeholderTextColor={cores.textoSecundario}
       />
       <TextInput
-        style={styles.campo}
+        style={[styles.campo, focado === 'descricao' && styles.campoFocado]}
         value={descricao}
         onChangeText={setDescricao}
+        onFocus={() => setFocado('descricao')}
+        onBlur={() => setFocado(null)}
         placeholder="Descrição"
         placeholderTextColor={cores.textoSecundario}
       />
@@ -62,21 +67,26 @@ export default function FormularioCard({ aoCriar }: FormularioCardProps) {
 
 const styles = StyleSheet.create({
   formulario: {
-    backgroundColor: cores.superficie,
-    borderRadius: 8,
+    backgroundColor: cores.cartao,
+    borderColor: cores.borda,
+    borderWidth: 1,
+    borderRadius: raios.cartao,
     padding: espacamento.medio,
     marginBottom: espacamento.medio,
   },
   campo: {
     backgroundColor: cores.fundo,
-    borderColor: cores.borda,
+    borderColor: cores.bordaForte,
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: raios.campo,
     color: cores.texto,
     fontSize: 14,
+    height: 48,
     paddingHorizontal: 12,
-    paddingVertical: 10,
     marginBottom: espacamento.pequeno,
+  },
+  campoFocado: {
+    borderColor: cores.primaria,
   },
   erro: {
     color: cores.erro,
@@ -84,13 +94,14 @@ const styles = StyleSheet.create({
     marginBottom: espacamento.pequeno,
   },
   botao: {
-    backgroundColor: cores.destaque,
-    borderRadius: 6,
-    paddingVertical: 12,
+    backgroundColor: cores.primaria,
+    borderRadius: raios.campo,
+    height: 48,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   textoBotao: {
-    color: cores.textoSobreDestaque,
+    color: cores.textoSobrePrimaria,
     fontSize: 14,
     fontWeight: '700',
     textTransform: 'uppercase',

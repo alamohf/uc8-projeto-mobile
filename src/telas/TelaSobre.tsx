@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   secao: {
-    color: cores.destaque,
+    color: cores.primaria,
     fontSize: 14,
     fontWeight: '800',
     textTransform: 'uppercase',

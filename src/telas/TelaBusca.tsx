@@ -4,7 +4,7 @@ import { filtrarCards } from '../busca';
 import { COLUNA_FEITO, nomesColunas } from '../colunas';
 import { useQuadro } from '../contexto/QuadroContexto';
 import type { PropsDaTela } from '../navegacao/rotas';
-import { cores, espacamento } from '../tema';
+import { cores, espacamento, estiloDaColuna, estiloSemColuna, raios } from '../tema';
 
 export default function TelaBusca({ navigation }: PropsDaTela<'Busca'>) {
   const { estado } = useQuadro();
@@ -40,7 +40,9 @@ export default function TelaBusca({ navigation }: PropsDaTela<'Busca'>) {
           <Pressable style={styles.resultado} onPress={() => navigation.navigate('DetalheCard', { id: item.id })}>
             <Text style={[styles.titulo, item.colunaId === COLUNA_FEITO && styles.tituloConcluido]}>{item.titulo}</Text>
             {item.descricao ? <Text style={styles.descricao}>{item.descricao}</Text> : null}
-            <Text style={styles.coluna}>{nomesColunas[item.colunaId] ?? 'Sem coluna'}</Text>
+            <Text style={[styles.coluna, { color: (estiloDaColuna[item.colunaId] ?? estiloSemColuna).cor }]}>
+              {nomesColunas[item.colunaId] ?? 'Sem coluna'}
+            </Text>
           </Pressable>
         )}
         ListEmptyComponent={<Text style={styles.vazio}>{mensagemVazia()}</Text>}
@@ -57,13 +59,13 @@ const styles = StyleSheet.create({
   },
   campo: {
     backgroundColor: cores.superficie,
-    borderColor: cores.borda,
+    borderColor: cores.bordaForte,
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: raios.campo,
     color: cores.texto,
     fontSize: 14,
+    height: 48,
     paddingHorizontal: 12,
-    paddingVertical: 10,
     marginBottom: espacamento.pequeno,
   },
   contagem: {
@@ -72,11 +74,11 @@ const styles = StyleSheet.create({
     marginBottom: espacamento.pequeno,
   },
   resultado: {
-    backgroundColor: cores.superficie,
-    borderLeftColor: cores.verde,
-    borderLeftWidth: 4,
-    borderRadius: 8,
-    padding: espacamento.medio,
+    backgroundColor: cores.cartao,
+    borderColor: cores.borda,
+    borderWidth: 1,
+    borderRadius: raios.cartao,
+    padding: espacamento.md,
     marginBottom: espacamento.pequeno,
   },
   titulo: {
@@ -93,7 +95,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   coluna: {
-    color: cores.destaque,
     fontSize: 12,
     fontWeight: '700',
     textTransform: 'uppercase',

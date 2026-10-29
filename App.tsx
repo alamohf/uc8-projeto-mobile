@@ -20,10 +20,10 @@ const temaDoApp = {
   colors: {
     ...DarkTheme.colors,
     background: cores.fundo,
-    card: cores.verde,
+    card: cores.superficie,
     text: cores.texto,
-    primary: cores.destaque,
-    border: cores.borda,
+    primary: cores.primaria,
+    border: cores.bordaForte,
   },
 };
 

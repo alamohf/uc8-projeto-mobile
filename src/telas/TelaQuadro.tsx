@@ -9,7 +9,7 @@ import { registrarErro } from '../erros/erros';
 import { rotuloGuardados } from '../contagem';
 import type { PropsDaTela } from '../navegacao/rotas';
 import { Card } from '../types/entidades';
-import { cores, espacamento } from '../tema';
+import { cores, espacamento, estiloDaColuna, estiloSemColuna, raios } from '../tema';
 
 interface SecaoDaColuna {
   colunaId: number;
@@ -38,7 +38,7 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
       case 'carregando':
         return (
           <View style={styles.centro}>
-            <ActivityIndicator size="large" color={cores.destaque} />
+            <ActivityIndicator size="large" color={cores.primaria} />
             <Text style={styles.textoCarregando}>Carregando cards...</Text>
           </View>
         );
@@ -73,12 +73,17 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
               sections={agruparPorColuna(estado.cards)}
               keyExtractor={(card) => String(card.id)}
               renderItem={({ item }) => <CartaoCard card={item} aoMudarColuna={moverCard} aoAbrir={(id) => navigation.navigate('DetalheCard', { id })} />}
-              renderSectionHeader={({ section }) => (
-                <View style={styles.secao}>
-                  <Text style={styles.tituloSecao}>{nomesColunas[section.colunaId]}</Text>
-                  <Text style={styles.contagemSecao}>{section.data.length}</Text>
-                </View>
-              )}
+              renderSectionHeader={({ section }) => {
+                const estiloColuna = estiloDaColuna[section.colunaId] ?? estiloSemColuna;
+                return (
+                  <View style={styles.secao}>
+                    <Text style={styles.tituloSecao}>{nomesColunas[section.colunaId]}</Text>
+                    <View style={[styles.pilula, { backgroundColor: estiloColuna.tinta }]}>
+                      <Text style={[styles.contagemSecao, { color: estiloColuna.cor }]}>{section.data.length}</Text>
+                    </View>
+                  </View>
+                );
+              }}
               renderSectionFooter={({ section }) =>
                 section.data.length === 0 ? <Text style={styles.vazio}>Nenhum card nesta coluna.</Text> : null
               }
@@ -94,18 +99,15 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
     <SafeAreaView style={styles.tela}>
       <StatusBar style="light" />
       <View style={styles.cabecalho}>
-        <Text style={styles.tituloCabecalho}>Kanban</Text>
-        <Text style={styles.guardados}>Guardados no aparelho: {rotuloGuardados(guardados)}</Text>
+        <View style={styles.titulos}>
+          <Text style={styles.tituloCabecalho}>Kanban</Text>
+          <Text style={styles.guardados}>Guardados no aparelho: {rotuloGuardados(guardados)}</Text>
+        </View>
         <View style={styles.botoesCabecalho}>
           {estado.tipo === 'pronto' ? (
-            <>
-              <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('Busca')}>
-                <Text style={styles.textoBotaoCabecalho}>Buscar</Text>
-              </Pressable>
-              <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('NovoCard')}>
-                <Text style={styles.textoBotaoCabecalho}>Novo</Text>
-              </Pressable>
-            </>
+            <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('Busca')}>
+              <Text style={styles.textoBotaoCabecalho}>Buscar</Text>
+            </Pressable>
           ) : null}
           <Pressable style={styles.botaoCabecalho} onPress={() => navigation.navigate('Sobre')}>
             <Text style={styles.textoBotaoCabecalho}>Sobre</Text>
@@ -119,6 +121,12 @@ export default function TelaQuadro({ navigation }: PropsDaTela<'Quadro'>) {
         </Pressable>
       ) : null}
       {conteudo()}
+      {estado.tipo === 'pronto' ? (
+        <Pressable style={styles.botaoFlutuante} onPress={() => navigation.navigate('NovoCard')}>
+          <Text style={styles.maisFlutuante}>+</Text>
+          <Text style={styles.textoBotaoFlutuante}>Novo</Text>
+        </Pressable>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -129,43 +137,48 @@ const styles = StyleSheet.create({
     backgroundColor: cores.fundo,
   },
   cabecalho: {
-    backgroundColor: cores.verde,
-    borderBottomColor: cores.destaque,
-    borderBottomWidth: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: cores.superficie,
+    borderBottomColor: cores.borda,
+    borderBottomWidth: 1,
     paddingHorizontal: espacamento.medio,
-    paddingVertical: 14,
+    paddingVertical: espacamento.md,
+  },
+  titulos: {
+    flex: 1,
   },
   botoesCabecalho: {
     flexDirection: 'row',
-    marginTop: 10,
   },
   botaoCabecalho: {
-    flex: 1,
-    backgroundColor: cores.destaque,
-    borderRadius: 6,
-    paddingVertical: 8,
-    alignItems: 'center',
-    marginRight: espacamento.pequeno,
+    backgroundColor: cores.cartao,
+    borderColor: cores.bordaForte,
+    borderWidth: 1,
+    borderRadius: raios.campo,
+    paddingVertical: espacamento.pequeno,
+    paddingHorizontal: espacamento.md,
+    marginLeft: espacamento.pequeno,
   },
   textoBotaoCabecalho: {
-    color: cores.textoSobreDestaque,
+    color: cores.texto,
     fontSize: 13,
-    fontWeight: '700',
-    textTransform: 'uppercase',
+    fontWeight: '600',
   },
   tituloCabecalho: {
     color: cores.texto,
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   guardados: {
-    color: cores.texto,
+    color: cores.textoSecundario,
     fontSize: 12,
     marginTop: 2,
-    opacity: 0.8,
   },
   conteudo: {
     padding: espacamento.medio,
+    paddingBottom: 96,
   },
   centro: {
     flex: 1,
@@ -179,13 +192,13 @@ const styles = StyleSheet.create({
     marginTop: espacamento.medio,
   },
   aviso: {
-    backgroundColor: cores.superficie,
+    backgroundColor: cores.cartao,
     borderLeftColor: cores.erro,
     borderLeftWidth: 4,
     marginHorizontal: espacamento.medio,
     marginTop: espacamento.medio,
     padding: espacamento.medio,
-    borderRadius: 8,
+    borderRadius: raios.cartao,
   },
   textoAviso: {
     color: cores.erro,
@@ -193,16 +206,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   avisoOffline: {
-    backgroundColor: cores.superficie,
-    borderLeftColor: cores.destaque,
+    backgroundColor: cores.cartao,
+    borderLeftColor: cores.alerta,
     borderLeftWidth: 4,
     marginHorizontal: espacamento.medio,
     marginTop: espacamento.medio,
     padding: espacamento.medio,
-    borderRadius: 8,
+    borderRadius: raios.cartao,
   },
   textoAvisoOffline: {
-    color: cores.destaque,
+    color: cores.alerta,
     fontSize: 13,
     fontWeight: '700',
   },
@@ -223,39 +236,69 @@ const styles = StyleSheet.create({
     marginVertical: espacamento.pequeno,
   },
   botao: {
-    backgroundColor: cores.destaque,
-    borderRadius: 6,
+    backgroundColor: cores.primaria,
+    borderRadius: raios.campo,
     paddingVertical: 12,
     paddingHorizontal: espacamento.grande,
     marginTop: espacamento.pequeno,
   },
   textoBotao: {
-    color: cores.textoSobreDestaque,
+    color: cores.textoSobrePrimaria,
     fontSize: 14,
     fontWeight: '700',
     textTransform: 'uppercase',
   },
   secao: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: espacamento.pequeno,
     marginBottom: espacamento.pequeno,
   },
   tituloSecao: {
-    color: cores.destaque,
-    fontSize: 14,
-    fontWeight: '800',
-    textTransform: 'uppercase',
+    color: cores.texto,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  pilula: {
+    borderRadius: raios.pilula,
+    paddingHorizontal: espacamento.pequeno,
+    paddingVertical: 2,
+    marginLeft: espacamento.pequeno,
   },
   contagemSecao: {
-    color: cores.textoSecundario,
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700',
   },
   vazio: {
     color: cores.textoSecundario,
     fontSize: 14,
     marginBottom: espacamento.medio,
+  },
+  botaoFlutuante: {
+    position: 'absolute',
+    right: espacamento.medio,
+    bottom: espacamento.grande,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: cores.primaria,
+    borderRadius: raios.pilula,
+    height: 48,
+    paddingHorizontal: espacamento.medio + 4,
+    elevation: 6,
+    shadowColor: cores.primaria,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  maisFlutuante: {
+    color: cores.textoSobrePrimaria,
+    fontSize: 22,
+    fontWeight: '600',
+    marginRight: espacamento.pequeno,
+  },
+  textoBotaoFlutuante: {
+    color: cores.textoSobrePrimaria,
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
