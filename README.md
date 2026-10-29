@@ -27,6 +27,9 @@ O visual segue o layout do Stitch (tema escuro azul-marinho com ciano, cores em 
     - **Fazendo**: *Voltar* (vai para A fazer) ou *Concluir*;
     - **Feito**: *Reabrir* (volta para A fazer). O cartão aparece riscado.
     O card vai para o fim da coluna de destino.
+  - **Contador de dias:** ao concluir, o app grava a data (`concluido_em`); o cartão em **Feito** mostra
+    **Levou N dias** (dias corridos desde a criação). *Reabrir* ou *Voltar* apaga a data, e concluir de novo
+    recomeça a conta. Cards concluídos antes desse recurso não mostram o tempo.
   - A lista tem três estados: carregando, erro (com **Tentar de novo**) e pronto. Se mover um
     card falhar, o app mostra a mensagem na tela.
 - **Novo card**: formulário com título (até 80 caracteres) e descrição, ambos obrigatórios. O card
@@ -34,6 +37,7 @@ O visual segue o layout do Stitch (tema escuro azul-marinho com ciano, cores em 
   aparece no formulário.
 - **Detalhe**: título, descrição, coluna e data de criação, com os mesmos botões de mover do
   deslizar (*Mover*, *Concluir*, *Voltar*, *Reabrir*).
+  Em um card concluído, mostra também **Concluído em** e **Tempo para concluir**.
 - **Buscar**: filtra os cards por título ou descrição, sem diferenciar maiúsculas nem acentos;
   tocar num resultado abre o Detalhe.
 - **Sobre**: versão do app, quantos cards estão guardados no aparelho e uma nota sobre os dados.
@@ -89,6 +93,8 @@ O app lê os cards de um projeto no [Supabase](https://supabase.com) pela API RE
 
 1. Crie um projeto no Supabase e, no SQL Editor, execute `supabase/esquema.sql` uma vez
    (cria `colunas` e `cards`, as políticas de acesso anônimo e os dados iniciais).
+   Em um projeto criado antes do contador de dias, rode só `alter table public.cards add column
+   concluido_em timestamptz;`. Sem a coluna, mover um card dá erro.
 2. Copie o arquivo de exemplo e preencha com os valores do seu projeto
    (Project Settings → API): a URL e a chave publicável.
 

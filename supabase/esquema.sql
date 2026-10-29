@@ -1,4 +1,5 @@
 -- Esquema do Kanban no Supabase. Cole inteiro no SQL Editor do projeto e execute uma vez.
+-- Projeto já criado antes do contador de dias: rode só `alter table public.cards add column concluido_em timestamptz;`
 create table public.colunas (
   id bigint generated always as identity primary key,
   titulo text not null,
@@ -11,7 +12,8 @@ create table public.cards (
   titulo text not null,
   descricao text,
   posicao integer not null,
-  criado_em timestamptz not null default now()
+  criado_em timestamptz not null default now(),
+  concluido_em timestamptz
 );
 
 alter table public.colunas enable row level security;
@@ -38,7 +40,7 @@ insert into public.colunas (titulo, posicao) values
   ('Fazendo', 2),
   ('Feito', 3);
 
-insert into public.cards (coluna_id, titulo, descricao, posicao) values
-  (1, 'Desenhar tela do quadro', 'Colunas e cards lado a lado', 1),
-  (2, 'Tipar entidades', null, 1),
-  (3, 'Escrever README', 'Recorte, telas e o que fica de fora', 1);
+insert into public.cards (coluna_id, titulo, descricao, posicao, concluido_em) values
+  (1, 'Desenhar tela do quadro', 'Colunas e cards lado a lado', 1, null),
+  (2, 'Tipar entidades', null, 1, null),
+  (3, 'Escrever README', 'Recorte, telas e o que fica de fora', 1, now());
