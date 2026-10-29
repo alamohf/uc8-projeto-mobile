@@ -14,6 +14,7 @@ interface LinhaCard {
   descricao: string | null;
   posicao: number;
   criado_em: string;
+  concluido_em: string | null;
 }
 
 interface LinhaPendente {
@@ -36,7 +37,8 @@ function banco(): Promise<SQLite.SQLiteDatabase> {
           titulo TEXT NOT NULL,
           descricao TEXT,
           posicao INTEGER NOT NULL,
-          criado_em TEXT NOT NULL
+          criado_em TEXT NOT NULL,
+          concluido_em TEXT
         );
         CREATE TABLE IF NOT EXISTS pendentes (
           id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -46,6 +48,10 @@ function banco(): Promise<SQLite.SQLiteDatabase> {
           posicao INTEGER NOT NULL
         );
       `);
+      const colunas = await db.getAllAsync<{ name: string }>('PRAGMA table_info(cards)');
+      if (!colunas.some((coluna) => coluna.name === 'concluido_em')) {
+        await db.execAsync('ALTER TABLE cards ADD COLUMN concluido_em TEXT');
+      }
       return db;
     });
     bancoAberto.catch(() => {
@@ -72,12 +78,13 @@ function paraCard(linha: LinhaCard): Card {
     descricao: linha.descricao ?? undefined,
     posicao: linha.posicao,
     criadoEm: new Date(linha.criado_em),
+    concluidoEm: linha.concluido_em === null ? undefined : new Date(linha.concluido_em),
   };
 }
 
 export async function listarLocal(): Promise<Card[]> {
   const linhas = await noBanco((db) =>
-    db.getAllAsync<LinhaCard>('SELECT id, coluna_id, titulo, descricao, posicao, criado_em FROM cards ORDER BY id'),
+    db.getAllAsync<LinhaCard>('SELECT id, coluna_id, titulo, descricao, posicao, criado_em, concluido_em FROM cards ORDER BY id'),
   );
   return linhas.map(paraCard);
 }
@@ -88,8 +95,16 @@ export async function guardarLocal(cards: Card[]): Promise<void> {
       await db.runAsync('DELETE FROM cards');
       for (const card of cards) {
         await db.runAsync(
-          'INSERT INTO cards (id, coluna_id, titulo, descricao, posicao, criado_em) VALUES (?, ?, ?, ?, ?, ?)',
-          [card.id, card.colunaId, card.titulo, card.descricao ?? null, card.posicao, card.criadoEm.toISOString()],
+          'INSERT INTO cards (id, coluna_id, titulo, descricao, posicao, criado_em, concluido_em) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [
+            card.id,
+            card.colunaId,
+            card.titulo,
+            card.descricao ?? null,
+            card.posicao,
+            card.criadoEm.toISOString(),
+            card.concluidoEm?.toISOString() ?? null,
+          ],
         );
       }
     }),

@@ -11,4 +11,5 @@ export interface Card {
   descricao?: string;
   posicao: number;
   criadoEm: Date;
+  concluidoEm?: Date;
 }

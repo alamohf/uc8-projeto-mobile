@@ -11,7 +11,7 @@ import {
 import { registrarErro } from '../erros/erros';
 import { ErroDaApi, buscarCards, incluirCard, moverCard } from '../servicos/cardsServico';
 import { Card } from '../types/entidades';
-import { COLUNA_FAZER } from '../colunas';
+import { COLUNA_FAZER, COLUNA_FEITO } from '../colunas';
 import { validarNovoCard } from '../validacao';
 
 export type EstadoQuadro =
@@ -131,7 +131,8 @@ export function QuadroProvedor({ children }: { children: ReactNode }) {
     const existentes = estado.tipo === 'pronto' ? estado.cards : [];
     const doDestino = existentes.filter((c) => c.colunaId === colunaId);
     const posicao = Math.max(0, ...doDestino.map((c) => c.posicao)) + 1;
-    const atualizado = await moverCard(id, colunaId, posicao);
+    const concluidoEm = colunaId === COLUNA_FEITO ? new Date() : null;
+    const atualizado = await moverCard(id, colunaId, posicao, concluidoEm);
     setEstado((atual) =>
       atual.tipo === 'pronto'
         ? { ...atual, cards: atual.cards.map((c) => (c.id === id ? atualizado : c)) }

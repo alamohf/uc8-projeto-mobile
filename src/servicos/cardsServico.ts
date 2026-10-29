@@ -14,6 +14,7 @@ interface CardRemoto {
   descricao: string | null;
   posicao: number;
   criado_em: string;
+  concluido_em?: string | null;
 }
 
 export class ErroDaApi extends Error {
@@ -55,7 +56,8 @@ function ehCardRemoto(valor: unknown): valor is CardRemoto {
     typeof campos.titulo === 'string' &&
     typeof campos.posicao === 'number' &&
     typeof campos.criado_em === 'string' &&
-    (campos.descricao === null || typeof campos.descricao === 'string')
+    (campos.descricao === null || typeof campos.descricao === 'string') &&
+    (campos.concluido_em === undefined || campos.concluido_em === null || typeof campos.concluido_em === 'string')
   );
 }
 
@@ -71,6 +73,7 @@ function paraCard(remoto: CardRemoto): Card {
     descricao: remoto.descricao ?? undefined,
     posicao: remoto.posicao,
     criadoEm: new Date(remoto.criado_em),
+    concluidoEm: remoto.concluido_em ? new Date(remoto.concluido_em) : undefined,
   };
 }
 
@@ -108,8 +111,12 @@ export async function incluirCard(dados: DadosNovoCard): Promise<Card> {
   return paraCard(corpo[0]);
 }
 
-export async function moverCard(id: number, colunaId: number, posicao: number): Promise<Card> {
-  const corpo = await requisitar(`cards?select=*&id=eq.${id}`, 'PATCH', { coluna_id: colunaId, posicao });
+export async function moverCard(id: number, colunaId: number, posicao: number, concluidoEm: Date | null): Promise<Card> {
+  const corpo = await requisitar(`cards?select=*&id=eq.${id}`, 'PATCH', {
+    coluna_id: colunaId,
+    posicao,
+    concluido_em: concluidoEm === null ? null : concluidoEm.toISOString(),
+  });
   if (!ehListaDeCards(corpo) || corpo.length !== 1) {
     throw new Error('Resposta inesperada da API');
   }
